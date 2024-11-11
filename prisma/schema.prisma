@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model bug_reports {
+  id            Int       @id @default(autoincrement())
+  user_id       Int?
+  bug_image_url String?   @db.VarChar(255)
+  bug_type      String?   @db.VarChar(255)
+  bug_size      String?   @db.VarChar(255)
+  equipment     String?   @db.VarChar(255)
+  price         String?   @db.VarChar(50)
+  bug_note      String?   @db.Text
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  status        String?   @db.VarChar(50)
+  users         users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bug_reports_ibfk_1")
+  matches       matches[]
+
+  @@index([user_id], map: "bug_reports_ibfk_1")
+}
+
+model chats {
+  id         Int       @id @default(autoincrement())
+  match_id   Int?
+  status     String?   @db.VarChar(50)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  blocked_at DateTime? @db.Timestamp(0)
+  matches    matches?  @relation(fields: [match_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chats_ibfk_1")
+
+  @@index([match_id], map: "match_id")
+}
+
+model matches {
+  id                             Int          @id @default(autoincrement())
+  bug_report_id                  Int?
+  hunter_id                      Int?
+  helper_id                      Int?
+  status                         String?      @db.VarChar(50)
+  created_at                     DateTime?    @default(now()) @db.Timestamp(0)
+  accepted_at                    DateTime?    @db.Timestamp(0)
+  rejected_at                    DateTime?    @db.Timestamp(0)
+  chats                          chats[]
+  bug_reports                    bug_reports? @relation(fields: [bug_report_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_1")
+  users_matches_hunter_idTousers users?       @relation("matches_hunter_idTousers", fields: [hunter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_2")
+  users_matches_helper_idTousers users?       @relation("matches_helper_idTousers", fields: [helper_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_3")
+
+  @@index([bug_report_id], map: "bug_report_id")
+  @@index([hunter_id], map: "matches_ibfk_2")
+  @@index([helper_id], map: "matches_ibfk_3")
+}
+
+model user_reviews {
+  id          Int       @id @default(autoincrement())
+  user_id     Int?
+  role        String?   @db.VarChar(50)
+  score       Int?
+  time_taken  Int?
+  price       Int?
+  review_note String?   @db.Text
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  users       users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_reviews_ibfk_1")
+
+  @@index([user_id], map: "user_reviews_ibfk_1")
+}
+
+model users {
+  id                               Int            @id
+  name                             String?        @db.VarChar(255)
+  phone_number                     String?        @db.VarChar(20)
+  location                         String?        @db.VarChar(255)
+  gender                           String?        @db.VarChar(50)
+  role                             String?        @db.VarChar(50)
+  hunt_count                       Int?
+  age_group                        String?        @db.VarChar(50)
+  email                            String?        @db.VarChar(255)
+  password                         String?        @db.VarChar(255)
+  created_at                       DateTime?      @default(now()) @db.Timestamp(0)
+  updated_at                       DateTime?      @default(now()) @db.Timestamp(0)
+  bug_reports                      bug_reports[]
+  matches_matches_hunter_idTousers matches[]      @relation("matches_hunter_idTousers")
+  matches_matches_helper_idTousers matches[]      @relation("matches_helper_idTousers")
+  user_reviews                     user_reviews[]
+}
