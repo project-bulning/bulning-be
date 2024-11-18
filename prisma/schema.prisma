@@ -82,6 +82,7 @@ model users {
   password                         String?        @db.VarChar(255)
   created_at                       DateTime?      @default(now()) @db.Timestamp(0)
   updated_at                       DateTime?      @default(now()) @db.Timestamp(0)
+  terms_accepted                   Int?           @db.TinyInt
   bug_reports                      bug_reports[]
   matches_matches_hunter_idTousers matches[]      @relation("matches_hunter_idTousers")
   matches_matches_helper_idTousers matches[]      @relation("matches_helper_idTousers")
