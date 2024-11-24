@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { getKakaoToken, getKakaoUserInfo } from '../services/kakaoLoginService';
+import { handleUserLogin, handleRegistrationLogic } from '../services/userAuthService';
 
 // Kakao 로그인 URL 생성 - 사용자가 로그인 버튼을 눌렀을 때 이 URL로 이동시킵니다.
 export const kakaoLogin = (req: Request, res: Response): void => {
@@ -13,14 +14,35 @@ export const kakaoCallback = async (req: Request, res: Response): Promise<void> 
   try {
     const accessToken = await getKakaoToken(code as string);
     const userInfo = await getKakaoUserInfo(accessToken);
-    
-    // 여기에서 사용자 정보를 데이터베이스에 저장하거나, 사용자 인증 정보를 세션이나 JWT로 관리할 수 있습니다.
-    console.log(userInfo);
 
-    // 로그인 성공 후 리다이렉트 또는 사용자 정보를 전달
-    res.json({ message: 'Kakao login successful', user: userInfo });
+    // 사용자 로그인 처리 또는 신규 사용자 등록 요청
+    const existingUser = await handleUserLogin(userInfo);
+    if (existingUser.isNewUser) {
+      res.status(200).json({
+        message: 'New user detected. Please complete registration.',
+        isNewUser: true,
+        userId: userInfo.id,
+      });
+    } else {
+      res.status(200).json({
+        message: 'Kakao login successful',
+        token: existingUser.token,
+        isNewUser: false,
+      });
+    }
   } catch (error) {
     console.error('Error during Kakao login:', error);
     res.status(500).send('Kakao login failed');
+  }
+};
+
+// 회원가입 절차 진행 - 추가 정보 수집 후 등록
+export const registration = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await handleRegistrationLogic(req);
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    console.error('Error during registration:', error);
+    res.status(500).send('Registration failed');
   }
 };
