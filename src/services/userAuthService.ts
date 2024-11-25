@@ -14,8 +14,8 @@ const generateJwtToken = (userId: number): string => {
 
 //회원 가입 로직
 export const handleRegistrationLogic = async (
-  req: Request<{}, {}, RegistrationRequestBody>
-): Promise<{ status: number; data: any }> => {
+  req: Request<{}, {}, RegistrationRequestBody>, res: Response
+) => {
     const { userId, gender, ageRange, phoneNumber, location, termsAccepted } = req.body;
   
     // //약관 동의 필드 필수 true
@@ -50,13 +50,8 @@ export const handleRegistrationLogic = async (
   
     // JWT 토큰 생성 후 응답
     const jwtToken = generateJwtToken(newUser.id);
-    return {
-      status: 200,
-      data: {
-        message: 'Registration successful',
-        token: jwtToken,
-      },
-    };
+    const redirectUrl = `${process.env.REDIRECT_URL}/auth/login?access_token=${jwtToken}`;
+    res.redirect(redirectUrl as string);
 };
   
 // 사용자 로그인 처리 - 데이터베이스에 사용자 추가 및 토큰 생성
