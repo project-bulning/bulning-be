@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { KaKaoUserDTO } from '../dto/userDto';
+import { KaKaoUserDTO, RegistrationRequestBody } from '../dto/userDto';
 import { PrismaClient } from '@prisma/client';
+import { Request, Response } from 'express';
 
 const prisma = new PrismaClient();
 
-// JWT 토큰 생성 함수 (반복 제거)
+// JWT 토큰 생성 함수
 const generateJwtToken = (userId: number): string => {
     return jwt.sign({ userId }, process.env.JWT_SECRET as string, {
       expiresIn: '1h',
@@ -12,22 +13,34 @@ const generateJwtToken = (userId: number): string => {
 };
 
 //회원 가입 로직
-export const handleRegistrationLogic = async (req: Request): Promise<{ status: number; data: any }> => {
+export const handleRegistrationLogic = async (
+  req: Request<{}, {}, RegistrationRequestBody>
+): Promise<{ status: number; data: any }> => {
     const { userId, gender, ageRange, phoneNumber, location, termsAccepted } = req.body;
   
-    if (!termsAccepted) {
+    // //약관 동의 필드 필수 true
+    // if (!termsAccepted) {
+    //   return {
+    //     status: 400,
+    //     data: { message: 'Terms must be accepted to register' },
+    //   };
+    // }
+
+    // `userId`를 숫자로 변환
+    const userIdNumber = parseInt(userId, 10);
+    if (isNaN(userIdNumber)) {
       return {
         status: 400,
-        data: { message: 'Terms must be accepted to register' },
+        data: { message: 'Invalid userId provided' },
       };
     }
   
     // 새로운 사용자 등록
     const newUser = await prisma.users.create({
       data: {
-        kakaoId: userId,
+        id: userIdNumber,
         gender,
-        ageGroup: ageRange,
+        age_group: ageRange,
         phone_number: phoneNumber,
         location,
         terms_accepted: termsAccepted ? 1 : 0,
@@ -51,7 +64,7 @@ export const handleUserLogin = async (user: KaKaoUserDTO): Promise<{ isNewUser: 
     try {
       // 데이터베이스에 사용자 존재 여부 확인
       let existingUser = await prisma.users.findUnique({
-        where: { kakaoId: user.id },
+        where: { id: user.id },
       });
   
       // 사용자가 없으면 새로 추가 필요

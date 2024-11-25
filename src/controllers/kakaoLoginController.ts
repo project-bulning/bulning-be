@@ -9,13 +9,17 @@ export const kakaoLogin = (req: Request, res: Response): void => {
 };
 
 // Kakao Redirect URL - 사용자가 로그인 후 카카오에서 이 URL로 리다이렉트됩니다.
-export const kakaoCallback = async (req: Request, res: Response): Promise<void> => {
+export const kakaoCallback = async (req: Request, res: Response) => {
   const { code } = req.query;
   try {
     const accessToken = await getKakaoToken(code as string);
     const userInfo = await getKakaoUserInfo(accessToken);
 
-    // 사용자 로그인 처리 또는 신규 사용자 등록 요청
+    //res.status(200).json({
+    //  userId: userInfo.id,
+    //});
+
+    //사용자 로그인 처리 또는 신규 사용자 등록 요청
     const existingUser = await handleUserLogin(userInfo);
     if (existingUser.isNewUser) {
       res.status(200).json({
@@ -37,12 +41,12 @@ export const kakaoCallback = async (req: Request, res: Response): Promise<void> 
 };
 
 // 회원가입 절차 진행 - 추가 정보 수집 후 등록
-export const registration = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const result = await handleRegistrationLogic(req);
-    res.status(result.status).json(result.data);
-  } catch (error) {
-    console.error('Error during registration:', error);
-    res.status(500).send('Registration failed');
-  }
-};
+// export const registration = async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const result = await handleRegistrationLogic(req);
+//     res.status(result.status).json(result.data);
+//   } catch (error) {
+//     console.error('Error during registration:', error);
+//     res.status(500).send('Registration failed');
+//   }
+// };
