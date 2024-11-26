@@ -15,7 +15,7 @@ export const kakaoCallback = async (req: Request, res: Response) => {
   try {
     const accessToken = await getKakaoToken(code as string);
     const userInfo = await getKakaoUserInfo(accessToken);
-    const { id, properties: { nickname } } = userInfo.userInfo;
+    const { id, properties: { nickname } } = userInfo;
 
     // id 조회 시 만약 db에서 새로운 사용자일 경우 새롭게 저장
     await handleUserLogin({ id, nickname });
