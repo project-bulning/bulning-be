@@ -17,14 +17,14 @@ export const handleUserLogin = async (user: KaKaoUserDTO) => {
   try {
     // 데이터베이스에 사용자 존재 여부 확인
     let existingUser = await prisma.users.findUnique({
-      where: { id: user.id },
+      where: { id: user.id.toString() },
     });
 
     // 사용자가 없으면 새로 추가 필요
     if (!existingUser) {
       existingUser = await prisma.users.create({
         data: {
-          id: user.id,
+          id: user.id.toString(),
           name: user.nickname,
         },
       });
