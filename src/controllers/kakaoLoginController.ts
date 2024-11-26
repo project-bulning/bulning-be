@@ -15,25 +15,11 @@ export const kakaoCallback = async (req: Request, res: Response) => {
     const accessToken = await getKakaoToken(code as string);
     const userInfo = await getKakaoUserInfo(accessToken);
 
-    //res.status(200).json({
-    //  userId: userInfo.id,
-    //});
+    res.status(200).json({
+      userInfo: userInfo,
+    });
 
-    //사용자 로그인 처리 또는 신규 사용자 등록 요청
-    const existingUser = await handleUserLogin(userInfo);
-    if (existingUser.isNewUser) {
-      res.status(200).json({
-        message: 'New user detected. Please complete registration.',
-        isNewUser: true,
-        userId: userInfo.id,
-      });
-    } else {
-      res.status(200).json({
-        message: 'Kakao login successful',
-        token: existingUser.token,
-        isNewUser: false,
-      });
-    }
+    
   } catch (error) {
     console.error('Error during Kakao login:', error);
     res.status(500).send('Kakao login failed');
