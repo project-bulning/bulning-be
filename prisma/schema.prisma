@@ -9,7 +9,7 @@ datasource db {
 
 model bug_reports {
   id            Int       @id @default(autoincrement())
-  user_id       Int?
+  user_id       String    @db.VarChar(50)
   bug_image_url String?   @db.VarChar(255)
   bug_type      String?   @db.VarChar(255)
   bug_size      String?   @db.VarChar(255)
@@ -19,7 +19,7 @@ model bug_reports {
   created_at    DateTime? @default(now()) @db.Timestamp(0)
   status        String?   @db.VarChar(50)
   title         String?   @db.VarChar(225)
-  users         users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bug_reports_ibfk_1")
+  users         users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bug_reports_ibfk_1")
   matches       matches[]
 
   @@index([user_id], map: "bug_reports_ibfk_1")
@@ -39,16 +39,16 @@ model chats {
 model matches {
   id                             Int          @id @default(autoincrement())
   bug_report_id                  Int?
-  hunter_id                      Int?
-  helper_id                      Int?
+  hunter_id                      String       @db.VarChar(50)
+  helper_id                      String       @db.VarChar(50)
   status                         String?      @db.VarChar(50)
   created_at                     DateTime?    @default(now()) @db.Timestamp(0)
   accepted_at                    DateTime?    @db.Timestamp(0)
   rejected_at                    DateTime?    @db.Timestamp(0)
   chats                          chats[]
   bug_reports                    bug_reports? @relation(fields: [bug_report_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_1")
-  users_matches_hunter_idTousers users?       @relation("matches_hunter_idTousers", fields: [hunter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_2")
-  users_matches_helper_idTousers users?       @relation("matches_helper_idTousers", fields: [helper_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_3")
+  users_matches_hunter_idTousers users        @relation("matches_hunter_idTousers", fields: [hunter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_2")
+  users_matches_helper_idTousers users        @relation("matches_helper_idTousers", fields: [helper_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_3")
 
   @@index([bug_report_id], map: "bug_report_id")
   @@index([hunter_id], map: "matches_ibfk_2")
@@ -57,20 +57,20 @@ model matches {
 
 model user_reviews {
   id          Int       @id @default(autoincrement())
-  user_id     Int?
+  user_id     String    @db.VarChar(50)
   role        String?   @db.VarChar(50)
   score       Int?
   time_taken  Int?
   price       Int?
   review_note String?   @db.Text
   created_at  DateTime? @default(now()) @db.Timestamp(0)
-  users       users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_reviews_ibfk_1")
+  users       users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_reviews_ibfk_1")
 
   @@index([user_id], map: "user_reviews_ibfk_1")
 }
 
 model users {
-  id                               Int            @id
+  id                               String         @id @db.VarChar(50)
   name                             String?        @db.VarChar(255)
   phone_number                     String?        @db.VarChar(20)
   location                         String?        @db.VarChar(255)

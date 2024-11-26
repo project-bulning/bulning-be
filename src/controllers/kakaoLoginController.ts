@@ -18,7 +18,7 @@ export const kakaoCallback = async (req: Request, res: Response) => {
     const { id, properties: { nickname } } = userInfo;
 
     // id 조회 시 만약 db에서 새로운 사용자일 경우 새롭게 저장
-    await handleUserLogin({ id:parseInt(id, 10), nickname });
+    await handleUserLogin({ id, nickname });
   
     // JWT 토큰 생성 후 응답
     const jwtToken = generateJwtToken(id);

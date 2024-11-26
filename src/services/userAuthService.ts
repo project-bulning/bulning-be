@@ -6,7 +6,7 @@ import { Request, Response } from 'express';
 const prisma = new PrismaClient();
 
 // JWT 토큰 생성 함수
-export const generateJwtToken = (userId: number): string => {
+export const generateJwtToken = (userId: string): string => {
     return jwt.sign({ userId }, process.env.JWT_SECRET as string, {
       expiresIn: '1h',
     });
@@ -51,19 +51,12 @@ export const handleRegistrationLogic = async (
     //   };
     // }
 
-    // `userId`를 숫자로 변환
-    const userIdNumber = parseInt(userId, 10);
-    if (isNaN(userIdNumber)) {
-      return {
-        status: 400,
-        data: { message: 'Invalid userId provided' },
-      };
-    }
+  
   
     // 새로운 사용자 등록
     const newUser = await prisma.users.create({
       data: {
-        id: userIdNumber,
+        id: userId,
         gender,
         age_group: ageRange,
         phone_number: phoneNumber,
