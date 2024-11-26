@@ -32,6 +32,7 @@ export const handleUserLogin = async (user: KaKaoUserDTO) => {
     
     return existingUser;
   } catch (error) {
+    console.error('Failed to handle user login:', error);
     throw new Error('Failed to handle user login');
   }
 };
