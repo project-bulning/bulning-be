@@ -37,40 +37,41 @@ export const handleUserLogin = async (user: KaKaoUserDTO) => {
   }
 };
 
-//회원 가입 로직
-export const handleRegistrationLogic = async (
-  req: Request<{}, {}, RegistrationRequestBody>, res: Response
-) => {
-    const { userId, gender, ageRange, phoneNumber, location, termsAccepted } = req.body;
+//회원 가입 -> 사용자 정보 추가 로직
+// export const handlUserInfoLogic = async (
+//   req: Request<{}, {}, RegistrationRequestBody>, res: Response
+// ) => {
+//     const {  gender, ageRange, phoneNumber, location, termsAccepted } = req.body;
   
-    // //약관 동의 필드 필수 true
-    // if (!termsAccepted) {
-    //   return {
-    //     status: 400,
-    //     data: { message: 'Terms must be accepted to register' },
-    //   };
-    // }
+//     // //약관 동의 필드 필수 true
+//     // if (!termsAccepted) {
+//     //   return {
+//     //     status: 400,
+//     //     data: { message: 'Terms must be accepted to register' },
+//     //   };
+//     // }
 
-  
-  
-    // 새로운 사용자 등록
-    const newUser = await prisma.users.create({
-      data: {
-        id: userId,
-        gender,
-        age_group: ageRange,
-        phone_number: phoneNumber,
-        location,
-        terms_accepted: termsAccepted ? 1 : 0,
-        created_at: new Date(),
-      },
-    });
-  
-  // JWT 토큰 생성 후 응답
-  const jwtToken = generateJwtToken(newUser.id);
-  const redirectUrl = `${process.env.REDIRECT_URL}/auth/login?access_token=${jwtToken}`;
-  res.redirect(redirectUrl as string);
-};
+//     //userId를 조회해서 db에 접근한 후 req.body에 있는 정보 db에 추가 저장하는 코드
+//     try {
+//       await prisma.users.update({
+//         where: { id: req.userId as string },
+//         data: {
+//           gender,
+//           age_group: ageRange,
+//           phone_number: phoneNumber,
+//           location,
+//           terms_accepted: termsAccepted ? 1 : 0,
+//           updated_at: new Date(),
+//         },
+//       });
+      
+//       res.status(200).json({ message: 'User registration details updated successfully' });
+//     } catch (error) {
+//       console.error('Failed to update user registration details:', error);
+//       res.status(500).json({ message: 'Failed to update user registration details' });
+//     }
+
+// };
   
 
   

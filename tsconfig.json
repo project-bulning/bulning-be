@@ -11,10 +11,16 @@
     "baseUrl": "src",
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types"
+    ]
+
   },
   "include": [
-    "src"
+    "src",
+    "types/**/*"
   ],
   "exclude": [
     "node_modules"

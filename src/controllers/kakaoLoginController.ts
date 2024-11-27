@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getKakaoToken, getKakaoUserInfo } from '../services/kakaoLoginService';
-import { handleUserLogin, handleRegistrationLogic, generateJwtToken } from '../services/userAuthService';
+import { handleUserLogin, generateJwtToken } from '../services/userAuthService';
 
 // Kakao 로그인 URL 생성 - 사용자가 로그인 버튼을 눌렀을 때 이 URL로 이동시킵니다.
 export const kakaoLogin = (req: Request, res: Response): void => {
@@ -31,11 +31,11 @@ export const kakaoCallback = async (req: Request, res: Response) => {
   }
 };
 
-// 회원가입 절차 진행 - 추가 정보 수집 후 등록
-// export const registration = async (req: Request, res: Response): Promise<void> => {
+// //회원가입 ,회원 정보 입력
+// export const userInfo = async (req: Request, res: Response): Promise<void> => {
 //   try {
-//     const result = await handleRegistrationLogic(req);
-//     res.status(result.status).json(result.data);
+//     //await handlUserInfoLogic(req);
+//    //res.status(result.status).json(result.data);
 //   } catch (error) {
 //     console.error('Error during registration:', error);
 //     res.status(500).send('Registration failed');

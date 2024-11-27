@@ -1,5 +1,5 @@
 export interface BugPostModel {
-    id?: number;
+    user_id?: string;
     title: string;
     bug_type: string;
     bug_size?: string;

@@ -1,5 +1,5 @@
 import express from 'express';
-import { kakaoLogin, kakaoCallback, userInfo } from '../controllers/kakaoLoginController';
+import { kakaoLogin, kakaoCallback } from '../controllers/kakaoLoginController';
 import { authenticateToken } from '../middlewares/authMiddleware';
 
 const router = express.Router();
