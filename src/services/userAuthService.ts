@@ -16,20 +16,22 @@ export const generateJwtToken = (userId: string): string => {
 export const handleUserLogin = async (user: KaKaoUserDTO) => {
   try {
     // 데이터베이스에 사용자 존재 여부 확인
-    let existingUser = await prisma.users.findUnique({
-      where: { id: user.id.toString() },
+    let existingUser = await prisma.users.findFirst({
+      where: {
+        kakao_id: user.id.toString(),
+      }
     });
 
     // 사용자가 없으면 새로 추가 필요
     if (!existingUser) {
       existingUser = await prisma.users.create({
         data: {
-          id: user.id.toString(),
+          kakao_id: user.id.toString(),
           name: user.nickname,
         },
       });
     }
-    
+
     return existingUser;
   } catch (error) {
     console.error('Failed to handle user login:', error);
@@ -42,7 +44,7 @@ export const handleUserLogin = async (user: KaKaoUserDTO) => {
 //   req: Request<{}, {}, RegistrationRequestBody>, res: Response
 // ) => {
 //     const {  gender, ageRange, phoneNumber, location, termsAccepted } = req.body;
-  
+
 //     // //약관 동의 필드 필수 true
 //     // if (!termsAccepted) {
 //     //   return {
@@ -64,7 +66,7 @@ export const handleUserLogin = async (user: KaKaoUserDTO) => {
 //           updated_at: new Date(),
 //         },
 //       });
-      
+
 //       res.status(200).json({ message: 'User registration details updated successfully' });
 //     } catch (error) {
 //       console.error('Failed to update user registration details:', error);
@@ -72,6 +74,5 @@ export const handleUserLogin = async (user: KaKaoUserDTO) => {
 //     }
 
 // };
-  
 
-  
+
