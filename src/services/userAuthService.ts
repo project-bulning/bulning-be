@@ -16,20 +16,22 @@ export const generateJwtToken = (userId: string): string => {
 export const handleUserLogin = async (user: KaKaoUserDTO) => {
   try {
     // 데이터베이스에 사용자 존재 여부 확인
-    let existingUser = await prisma.users.findUnique({
-      where: { id: user.id.toString() },
+    let existingUser = await prisma.users.findFirst({
+      where: {
+        kakao_id: user.id.toString(),
+      }
     });
 
     // 사용자가 없으면 새로 추가 필요
     if (!existingUser) {
       existingUser = await prisma.users.create({
         data: {
-          id: user.id.toString(),
+          kakao_id: user.id.toString(),
           name: user.nickname,
         },
       });
     }
-    
+
     return existingUser;
   } catch (error) {
     console.error('Failed to handle user login:', error);
@@ -39,7 +41,7 @@ export const handleUserLogin = async (user: KaKaoUserDTO) => {
 
 // 확장된 Request 타입 정의
 interface AuthenticatedRequest extends Request {
-  userId?: string;
+  userId: string;
 }
 
 //회원 가입 -> 사용자 정보 추가 로직
@@ -48,7 +50,7 @@ export const handlUserInfoLogic =  async (
   res: Response
 ) => {
     const {  gender, ageRange, phoneNumber, location, termsAccepted } = req.body;
-  
+
     // //약관 동의 필드 필수 true
     // if (!termsAccepted) {
     //   return {
@@ -56,11 +58,11 @@ export const handlUserInfoLogic =  async (
     //     data: { message: 'Terms must be accepted to register' },
     //   };
     // }
-   
+
     //userId를 조회해서 db에 접근한 후 req.body에 있는 정보 db에 추가 저장하는 코드
     try {
       await prisma.users.update({
-        where: { id: req.userId?.toString() as string},
+        where: { id: parseInt(req.userId) },
         data: {
           gender,
           age_group: ageRange,
@@ -70,7 +72,7 @@ export const handlUserInfoLogic =  async (
           updated_at: new Date(),
         },
       });
-      
+
       res.status(200).json({ message: 'User registration details updated successfully' });
     } catch (error) {
       console.error('Failed to update user registration details:', error);
@@ -78,6 +80,5 @@ export const handlUserInfoLogic =  async (
     }
 
 };
-  
 
-  
+
