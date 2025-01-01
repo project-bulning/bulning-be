@@ -1,5 +1,5 @@
 import express from 'express';
-import { getBugPosts, getBugPostDetails} from '../controllers/bugListController';
+import { getBugPosts, getBugPostDetails } from '@/controllers/bugListController';
 const router = express.Router();
 
 router.get('/catch-requests', getBugPosts);  // 사냥 리스트 조회
