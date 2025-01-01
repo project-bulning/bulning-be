@@ -9,3 +9,7 @@ export type GetBugReportsResponse = {
 
 export type GetBugReportDetailsResponse = BugReport;
 
+export interface CreateBugImageResponse {
+    image_url: string;
+}
+
