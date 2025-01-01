@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model bug_reports {
+model BugReport {
   id            Int       @id @default(autoincrement())
   user_id       Int
   bug_image_url String?   @db.VarChar(255)
@@ -19,43 +19,43 @@ model bug_reports {
   created_at    DateTime? @default(now()) @db.Timestamp(0)
   status        String?   @db.VarChar(50)
   title         String?   @db.VarChar(225)
-  users         users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bug_reports_ibfk_1")
-  matches       matches[]
+  user          User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bug_reports_user_fk")
+  matches       Match[]
 
-  @@index([user_id], map: "bug_reports_ibfk_1")
+  @@index([user_id], map: "bug_reports_user_fk")
 }
 
-model chats {
+model Chat {
   id         Int       @id @default(autoincrement())
   match_id   Int?
   status     String?   @db.VarChar(50)
   created_at DateTime? @default(now()) @db.Timestamp(0)
   blocked_at DateTime? @db.Timestamp(0)
-  matches    matches?  @relation(fields: [match_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chats_ibfk_1")
+  match      Match?    @relation(fields: [match_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chats_match_fk")
 
-  @@index([match_id], map: "match_id")
+  @@index([match_id], map: "chats_match_fk")
 }
 
-model matches {
-  id                             Int          @id @default(autoincrement())
-  bug_report_id                  Int?
-  helper_id                      Int
-  hunter_id                      Int
-  status                         String?      @db.VarChar(50)
-  created_at                     DateTime?    @default(now()) @db.Timestamp(0)
-  accepted_at                    DateTime?    @db.Timestamp(0)
-  rejected_at                    DateTime?    @db.Timestamp(0)
-  chats                          chats[]
-  bug_reports                    bug_reports? @relation(fields: [bug_report_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_1")
-  users_matches_hunter_idTousers users        @relation("matches_hunter_idTousers", fields: [hunter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_2")
-  users_matches_helper_idTousers users        @relation("matches_helper_idTousers", fields: [helper_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_ibfk_3")
+model Match {
+  id            Int        @id @default(autoincrement())
+  bug_report_id Int?
+  helper_id     Int
+  hunter_id     Int
+  status        String?    @db.VarChar(50)
+  created_at    DateTime?  @default(now()) @db.Timestamp(0)
+  accepted_at   DateTime?  @db.Timestamp(0)
+  rejected_at   DateTime?  @db.Timestamp(0)
+  chats         Chat[]
+  bug_report    BugReport? @relation(fields: [bug_report_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_bug_report_fk")
+  hunter        User       @relation("User_Hunter_Matches", fields: [hunter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_hunter_fk")
+  helper        User       @relation("User_Helper_Matches", fields: [helper_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_helper_fk")
 
-  @@index([bug_report_id], map: "bug_report_id")
-  @@index([hunter_id], map: "matches_ibfk_2")
-  @@index([helper_id], map: "matches_ibfk_3")
+  @@index([bug_report_id], map: "matches_bug_report_fk")
+  @@index([hunter_id], map: "matches_hunter_fk")
+  @@index([helper_id], map: "matches_helper_fk")
 }
 
-model user_reviews {
+model UserReview {
   id          Int       @id @default(autoincrement())
   user_id     Int
   role        String?   @db.VarChar(50)
@@ -64,28 +64,28 @@ model user_reviews {
   price       Int?
   review_note String?   @db.Text
   created_at  DateTime? @default(now()) @db.Timestamp(0)
-  users       users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_reviews_ibfk_1")
+  user        User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_reviews_user_fk")
 
-  @@index([user_id], map: "user_reviews_ibfk_1")
+  @@index([user_id], map: "user_reviews_user_fk")
 }
 
-model users {
-  id                               Int            @id @default(autoincrement())
-  kakao_id                         String         @db.VarChar(50)
-  name                             String?        @db.VarChar(255)
-  phone_number                     String?        @db.VarChar(20)
-  location                         String?        @db.VarChar(255)
-  gender                           String?        @db.VarChar(50)
-  role                             String?        @db.VarChar(50)
-  hunt_count                       Int?
-  age_group                        String?        @db.VarChar(50)
-  email                            String?        @db.VarChar(255)
-  password                         String?        @db.VarChar(255)
-  created_at                       DateTime?      @default(now()) @db.Timestamp(0)
-  updated_at                       DateTime?      @default(now()) @db.Timestamp(0)
-  terms_accepted                   Int?           @db.TinyInt
-  bug_reports                      bug_reports[]
-  matches_matches_hunter_idTousers matches[]      @relation("matches_hunter_idTousers")
-  matches_matches_helper_idTousers matches[]      @relation("matches_helper_idTousers")
-  user_reviews                     user_reviews[]
+model User {
+  id             Int          @id @default(autoincrement())
+  kakao_id       String       @db.VarChar(50)
+  name           String?      @db.VarChar(255)
+  phone_number   String?      @db.VarChar(20)
+  location       String?      @db.VarChar(255)
+  gender         String?      @db.VarChar(50)
+  role           String?      @db.VarChar(50)
+  hunt_count     Int?
+  age_group      String?      @db.VarChar(50)
+  email          String?      @db.VarChar(255)
+  password       String?      @db.VarChar(255)
+  created_at     DateTime?    @default(now()) @db.Timestamp(0)
+  updated_at     DateTime?    @default(now()) @db.Timestamp(0)
+  terms_accepted Int?         @db.TinyInt
+  bug_reports    BugReport[]
+  hunter_matches Match[]      @relation("User_Hunter_Matches")
+  helper_matches Match[]      @relation("User_Helper_Matches")
+  user_reviews   UserReview[]
 }
