@@ -16,7 +16,7 @@ export const generateJwtToken = (userId: string): string => {
 export const handleUserLogin = async (user: KaKaoUserDTO) => {
   try {
     // 데이터베이스에 사용자 존재 여부 확인
-    let existingUser = await prisma.users.findFirst({
+    let existingUser = await prisma.user.findFirst({
       where: {
         kakao_id: user.id.toString(),
       }
@@ -24,7 +24,7 @@ export const handleUserLogin = async (user: KaKaoUserDTO) => {
 
     // 사용자가 없으면 새로 추가 필요
     if (!existingUser) {
-      existingUser = await prisma.users.create({
+      existingUser = await prisma.user.create({
         data: {
           kakao_id: user.id.toString(),
           name: user.nickname,
@@ -61,7 +61,7 @@ export const handlUserInfoLogic =  async (
 
     //userId를 조회해서 db에 접근한 후 req.body에 있는 정보 db에 추가 저장하는 코드
     try {
-      await prisma.users.update({
+      await prisma.user.update({
         where: { id: parseInt(req.userId) },
         data: {
           gender,
