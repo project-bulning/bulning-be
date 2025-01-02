@@ -1,25 +1,26 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import type { AuthenticatedRequest } from '@/types/express';
+import prisma from '@/utils/database';
+import { User } from '@prisma/client';
+import { sendError } from '@/utils/response';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 
-interface AuthenticatedRequest extends Request {
-  userId?: string;
-}
-
-export const authenticateToken = (
+export const authenticateToken = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
-): void => {
+  next: NextFunction,
+) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    res.status(401).json({ message: 'Authorization header missing' });
+    sendError(res, ReasonPhrases.UNAUTHORIZED, StatusCodes.UNAUTHORIZED);
     return;
   }
 
   const token = authHeader.split(' ')[1];
   if (!token) {
-    res.status(401).json({ message: 'Token is missing in authorization header' });
+    sendError(res, ReasonPhrases.UNAUTHORIZED, StatusCodes.UNAUTHORIZED);
     return;
   }
 
@@ -32,15 +33,19 @@ export const authenticateToken = (
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload | string;
 
     if (typeof decoded !== 'object' || !decoded.userId) {
-      res.status(401).json({ message: 'Invalid token payload' });
+      res.status(401).json({message: 'Invalid token payload'});
       return;
     }
 
-    req.userId = decoded.userId as string;
+    req.user = await prisma.user.findUnique({
+      where: {
+        id: decoded.userId,
+      },
+    }) as User;
     next();
   } catch (error) {
     console.error('Token verification failed:', error);
-    res.status(401).json({ message: 'Invalid or expired token' });
+    res.status(401).json({message: 'Invalid or expired token'});
     return;
   }
 };
