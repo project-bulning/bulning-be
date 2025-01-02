@@ -1,11 +1,10 @@
-import { BugPostModel } from '../dto/bugDto';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 // 최신 게시물 조회 로직
 export const fetchLatestPosts = async (): Promise<any> => {
-    const posts = await prisma.bug_reports.findMany({
+    const posts = await prisma.bugReport.findMany({
       orderBy: {
         created_at: 'desc',
       },
@@ -15,7 +14,7 @@ export const fetchLatestPosts = async (): Promise<any> => {
 
 // 위치 기반 게시물 조회 로직
 export const fetchPostsByLocation = async (): Promise<any> => {
-    
+
 };
 
 // 게시물 작성 시간 계산 함수
@@ -33,9 +32,8 @@ const calculateElapsedTime = (posts: any[]): any[] => {
 
 // 게시물 상세 정보 조회 로직
 export const fetchPostDetails = async (id: number): Promise<any> => {
-    const post = await prisma.bug_reports.findUnique({
+    const post = await prisma.bugReport.findUnique({
       where: { id },
     });
     return post;
 };
-  

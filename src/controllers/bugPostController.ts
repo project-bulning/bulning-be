@@ -1,4 +1,3 @@
-import { BugPostModel } from '../dto/bugDto';
 import { Request, Response } from 'express';
 //import { createPost} from '../services/bugPostService';
 
@@ -17,5 +16,5 @@ export const createBugPost = async (req: Request, res: Response): Promise<void> 
 
 // 벌레 사진 입력
 export const uploadBugImage = async (req: Request, res: Response): Promise<void> => {
-  
+
 };
