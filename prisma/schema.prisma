@@ -2,6 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator zod {
+  provider = "zod-prisma-types"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -9,6 +13,8 @@ datasource db {
 
 model BugReport {
   id            Int       @id @default(autoincrement())
+  latitude      Float
+  longitude     Float
   user_id       Int
   bug_image_url String?   @db.VarChar(255)
   bug_type      String?   @db.VarChar(255)
