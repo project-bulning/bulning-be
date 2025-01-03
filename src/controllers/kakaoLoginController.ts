@@ -1,4 +1,8 @@
 import { Request, Response } from 'express';
+import { AuthenticatedRequest } from '@/types/express';
+import {RegistrationRequestBody} from '@/dto/userDto';
+import { sendError } from '@/utils/response';
+import { StatusCodes } from 'http-status-codes';
 import { getKakaoToken, getKakaoUserInfo } from '../services/kakaoLoginService';
 import { handleUserLogin, generateJwtToken, handlUserInfoLogic } from '../services/userAuthService';
 
@@ -32,10 +36,16 @@ export const kakaoCallback = async (req: Request, res: Response) => {
 };
 
 //회원가입 ,회원 정보 입력
-export const userInfo = async (req: Request, res: Response): Promise<void> => {
+export const userInfo = async (
+  req: AuthenticatedRequest<{}, RegistrationRequestBody>,
+  res: Response
+) => {
+  if(! req.user) {
+      return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
+  }
   try {
-    // handlUserInfoLogic이 직접 응답(res)을 처리함
-    await handlUserInfoLogic(req, res);
+    await handlUserInfoLogic(req.body, req.user);
+    res.status(StatusCodes.CREATED);
   } catch (error) {
     console.error('Error during user information update:', error);
     res.status(500).json({ message: 'Registration failed due to an internal error' });
