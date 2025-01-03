@@ -1,11 +1,24 @@
-import { PrismaClient } from '@prisma/client';
+import type { User } from '@prisma/client';
+import { CreateBugReportRequestBody } from '@/dto/reportDto';
+import prisma from '@/utils/database';
+import { BugReportCreateInputSchema } from '../../prisma/generated/zod';
+import { isValidS3Url } from '@/utils/upload';
 
-const prisma = new PrismaClient();
-
-// 벌레 게시물 생성
-//export const createPost = async (post: BugPostModel): Promise<void> => {
- //   await prisma.bug_reports.create({
-//      data: post,
- //   });
-//};
+export const createBugReport = (data: CreateBugReportRequestBody, user: User) => {
+  if(data.bug_image_url && ! isValidS3Url(data.bug_image_url)) {
+    throw new Error('올바르지 않은 이미지 URL입니다.');
+  }
+  const creationInput = {
+    ...data,
+    user: {
+      connect: {
+        id: user.id,
+      }
+    },
+  }
+  BugReportCreateInputSchema.parse(creationInput);
+  return prisma.bugReport.create({
+    data: creationInput,
+  });
+};
 
