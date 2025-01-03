@@ -1,34 +1,70 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/utils/database';
+import { Prisma } from '@prisma/client';
+import { SimplifiedBugReport, GetBugReportsResponse, ProcessedBugReport } from '@/dto/reportDto';
+import { differenceInMinutes, format } from 'date-fns';
 
-const prisma = new PrismaClient();
+//벌레 리포트 리스트 전체 조회 로직
+export const getAllBugReports = async (
+  currentLatitude: number,
+  currentLongitude: number
+): Promise<GetBugReportsResponse> => {
+  //현재 위도 경도로 거리 비교 후 가까운 순으로 정렬
+  const selectQuery: Prisma.Sql = Prisma.sql`
+    SELECT
+      id,
+      created_at,
+      status,
+      bug_image_url,
+      price,
+      ST_DISTANCE_SPHERE(
+        POINT(latitude, longitude),
+        POINT(${currentLatitude}, ${currentLongitude})
+      ) AS distance
+    FROM bug_report
+    ORDER BY distance ASC;
+  `;
 
-// 최신 게시물 조회 로직
-export const fetchLatestPosts = async (): Promise<any> => {
-    const posts = await prisma.bugReport.findMany({
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
-    return calculateElapsedTime(posts);
-};
+  const reports = await prisma.$queryRaw<
+    (SimplifiedBugReport & { distance: number })[]
+  >(selectQuery as unknown as Prisma.Sql);
 
-// 위치 기반 게시물 조회 로직
-export const fetchPostsByLocation = async (): Promise<any> => {
 
-};
+  //현재 시간 기준으로 몇 분 전인지
+  const now = new Date();
 
-// 게시물 작성 시간 계산 함수
-const calculateElapsedTime = (posts: any[]): any[] => {
-    const now = new Date();
-    return posts.map((post) => {
-      const createdAt = new Date(post.created_at);
-      const elapsedMinutes = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60));
+  const processedReports: ProcessedBugReport[] = reports.map((report) => {
+    //생성 시간이 null일 경우 처리
+    if (!report.created_at) {
       return {
-        ...post,
-        elapsedTime: `${elapsedMinutes}분 전`,
+        id: report.id,
+        created_at: '알 수 없음',
+        status: report.status || 'UNKNOWN',
+        bug_image_url: report.bug_image_url,
+        price: report.price,
       };
-    });
+    }
+    //현재 시간과 생성 시간 차이
+    const minutesDiff = differenceInMinutes(now, new Date(report.created_at));
+
+    let createdAtLabel;
+    if (minutesDiff < 60) {
+      createdAtLabel = `${minutesDiff}분 전`;
+    } else {
+      createdAtLabel = format(new Date(report.created_at), 'yyyy-MM-dd HH:mm:ss');
+    }
+
+    return {
+      id: report.id,
+      created_at: createdAtLabel,
+      status: report.status|| 'UNKNOWN',
+      bug_image_url: report.bug_image_url,
+      price: report.price,
+    };
+  });
+
+  return { bug_reports: processedReports };
 };
+
 
 // 게시물 상세 정보 조회 로직
 export const fetchPostDetails = async (id: number): Promise<any> => {
