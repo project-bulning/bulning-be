@@ -17,7 +17,7 @@ export const createBugPost = async (req: AuthenticatedRequest<{}, CreateBugRepor
   }
   try {
     await createBugReport(req.body, req.user);
-    res.status(StatusCodes.CREATED);
+    res.status(StatusCodes.CREATED).send();
   } catch(e) {
     console.error(e);
     return sendError(res, '게시글 업로드에 실패했습니다.');
