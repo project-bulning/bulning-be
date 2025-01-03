@@ -2,10 +2,8 @@ import { Request, Response } from 'express';
 import { sendError } from '@/utils/response';
 import { AuthenticatedRequest } from '@/types/express';
 import { StatusCodes } from 'http-status-codes';
-import { getAllBugReports, fetchPostDetails } from '@/services/bugListService';
-import {
-  SimplifiedBugReport, GetBugReportsResponse, ProcessedBugReport
-} from '@/dto/reportDto';
+import { getAllBugReports, fetchPostDetail } from '@/services/bugListService';
+import { GetBugReportsResponse,GetBugReportDetailsResponse} from '@/dto/reportDto';
 
 // 사냥 리스트 조회
 export const getBugReportList = async (req: Request, res: Response<GetBugReportsResponse>)=>{
@@ -26,17 +24,31 @@ export const getBugReportList = async (req: Request, res: Response<GetBugReports
 };
 
 // 사냥 상세 정보 조회
-export const getBugPostDetails = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { id } = req.query;
-      const post = await fetchPostDetails(Number(id));
-      if (!post) {
-        res.status(404).json({ message: 'Post not found' });
-        return;
-      }
-      res.status(200).json(post);
-    } catch (error) {
-      console.error('Error fetching post details:', error);
-      res.status(500).json({ message: 'Failed to fetch post details' });
+export const getBugReportDetail = async (
+  req: AuthenticatedRequest<{id: string},{}>, 
+  res: Response<GetBugReportDetailsResponse>
+) => {
+  if(! req.user) {
+    return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
+  }
+
+  try {
+    const id  = req.params;
+    if (!id || isNaN(Number(id))) {
+      return sendError(res, '유효한 버그 리포트 ID를 제공해야 합니다.'); 
     }
+
+    const bugReportDetail = await fetchPostDetail(Number(id));
+    if (!bugReportDetail) {
+      return sendError(res, '해당 ID의 버그 리포트를 찾을 수 없습니다.');
+    }
+
+    res.status(StatusCodes.OK).json(bugReportDetail);
+  } catch (error) {
+    console.error('Error fetching bug report details:', error);
+    return sendError(res, '버그 리포트 상세 정보를 가져오는 중 오류가 발생했습니다.');
+    // res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    //   message: '버그 리포트 상세 정보를 가져오는 중 오류가 발생했습니다.',
+    // });
+  }
 };

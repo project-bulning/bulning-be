@@ -1,6 +1,6 @@
 import prisma from '@/utils/database';
 import { Prisma } from '@prisma/client';
-import { SimplifiedBugReport, GetBugReportsResponse, ProcessedBugReport } from '@/dto/reportDto';
+import { SimplifiedBugReport, GetBugReportsResponse, ProcessedBugReport,GetBugReportDetailsResponse } from '@/dto/reportDto';
 import { differenceInMinutes, format } from 'date-fns';
 
 //벌레 리포트 리스트 전체 조회 로직
@@ -67,9 +67,9 @@ export const getAllBugReports = async (
 
 
 // 게시물 상세 정보 조회 로직
-export const fetchPostDetails = async (id: number): Promise<any> => {
-    const post = await prisma.bugReport.findUnique({
+export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsResponse | null> => {
+    const bugReportDetail = await prisma.bugReport.findUnique({
       where: { id },
     });
-    return post;
+    return bugReportDetail;
 };
