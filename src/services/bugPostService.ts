@@ -9,4 +9,3 @@ const prisma = new PrismaClient();
  //   });
 //};
 
-//벌레 이미지 저장
