@@ -5,6 +5,7 @@ import prisma from '@/utils/database';
 import { User } from '@prisma/client';
 import { sendError } from '@/utils/response';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import { ExtendedJWTPayload } from '@/dto/authDto';
 
 export const authenticateToken = async (
   req: AuthenticatedRequest,
@@ -30,16 +31,16 @@ export const authenticateToken = async (
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload | string;
+    const decoded = jwt.verify(token, JWT_SECRET) as ExtendedJWTPayload | string;
 
-    if (typeof decoded !== 'object' || !decoded.userId) {
+    if (typeof decoded !== 'object' || !decoded.id) {
       res.status(401).json({message: 'Invalid token payload'});
       return;
     }
 
     req.user = await prisma.user.findUnique({
       where: {
-        id: decoded.userId,
+        id: decoded.id,
       },
     }) as User;
     next();
