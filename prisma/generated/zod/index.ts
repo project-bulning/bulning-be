@@ -25,6 +25,11 @@ export const UserScalarFieldEnumSchema = z.enum(['id','kakao_id','name','phone_n
 export const SortOrderSchema = z.enum(['asc','desc']);
 
 export const NullsOrderSchema = z.enum(['first','last']);
+
+export const BugReportStatusSchema = z.enum(['WAITING_MATCH','PENDING','COMPLETED']);
+
+export type BugReportStatusType = `${z.infer<typeof BugReportStatusSchema>}`
+
 /////////////////////////////////////////
 // MODELS
 /////////////////////////////////////////
@@ -34,6 +39,7 @@ export const NullsOrderSchema = z.enum(['first','last']);
 /////////////////////////////////////////
 
 export const BugReportSchema = z.object({
+  status: BugReportStatusSchema,
   id: z.number().int(),
   latitude: z.number(),
   longitude: z.number(),
@@ -42,11 +48,10 @@ export const BugReportSchema = z.object({
   bug_type: z.string().nullable(),
   bug_size: z.string().nullable(),
   equipment: z.string().nullable(),
-  price: z.string().nullable(),
+  price: z.number().int(),
   note: z.string().nullable(),
   created_at: z.coerce.date().nullable(),
-  status: z.string().nullable(),
-  title: z.string().nullable(),
+  title: z.string(),
 })
 
 export type BugReport = z.infer<typeof BugReportSchema>
@@ -318,11 +323,11 @@ export const BugReportWhereInputSchema: z.ZodType<Prisma.BugReportWhereInput> = 
   bug_type: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   bug_size: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   equipment: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  price: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  price: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
   note: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
-  status: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  title: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => EnumBugReportStatusFilterSchema),z.lazy(() => BugReportStatusSchema) ]).optional(),
+  title: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   user: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
   matches: z.lazy(() => MatchListRelationFilterSchema).optional()
 }).strict();
@@ -336,11 +341,11 @@ export const BugReportOrderByWithRelationInputSchema: z.ZodType<Prisma.BugReport
   bug_type: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   bug_size: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   equipment: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  price: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  price: z.lazy(() => SortOrderSchema).optional(),
   note: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   created_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  status: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  title: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
   user: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
   matches: z.lazy(() => MatchOrderByRelationAggregateInputSchema).optional()
 }).strict();
@@ -360,11 +365,11 @@ export const BugReportWhereUniqueInputSchema: z.ZodType<Prisma.BugReportWhereUni
   bug_type: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   bug_size: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   equipment: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  price: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  price: z.union([ z.lazy(() => IntFilterSchema),z.number().int() ]).optional(),
   note: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
-  status: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  title: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => EnumBugReportStatusFilterSchema),z.lazy(() => BugReportStatusSchema) ]).optional(),
+  title: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   user: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
   matches: z.lazy(() => MatchListRelationFilterSchema).optional()
 }).strict());
@@ -378,11 +383,11 @@ export const BugReportOrderByWithAggregationInputSchema: z.ZodType<Prisma.BugRep
   bug_type: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   bug_size: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   equipment: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  price: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  price: z.lazy(() => SortOrderSchema).optional(),
   note: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   created_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  status: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  title: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
   _count: z.lazy(() => BugReportCountOrderByAggregateInputSchema).optional(),
   _avg: z.lazy(() => BugReportAvgOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => BugReportMaxOrderByAggregateInputSchema).optional(),
@@ -402,11 +407,11 @@ export const BugReportScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Bug
   bug_type: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   bug_size: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   equipment: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
-  price: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  price: z.union([ z.lazy(() => IntWithAggregatesFilterSchema),z.number() ]).optional(),
   note: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
-  status: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
-  title: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => EnumBugReportStatusWithAggregatesFilterSchema),z.lazy(() => BugReportStatusSchema) ]).optional(),
+  title: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
 }).strict();
 
 export const ChatWhereInputSchema: z.ZodType<Prisma.ChatWhereInput> = z.object({
@@ -749,11 +754,11 @@ export const BugReportCreateInputSchema: z.ZodType<Prisma.BugReportCreateInput> 
   bug_type: z.string().optional().nullable(),
   bug_size: z.string().optional().nullable(),
   equipment: z.string().optional().nullable(),
-  price: z.string().optional().nullable(),
+  price: z.number().int(),
   note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
-  status: z.string().optional().nullable(),
-  title: z.string().optional().nullable(),
+  status: z.lazy(() => BugReportStatusSchema).optional(),
+  title: z.string(),
   user: z.lazy(() => UserCreateNestedOneWithoutBug_reportsInputSchema),
   matches: z.lazy(() => MatchCreateNestedManyWithoutBug_reportInputSchema).optional()
 }).strict();
@@ -767,11 +772,11 @@ export const BugReportUncheckedCreateInputSchema: z.ZodType<Prisma.BugReportUnch
   bug_type: z.string().optional().nullable(),
   bug_size: z.string().optional().nullable(),
   equipment: z.string().optional().nullable(),
-  price: z.string().optional().nullable(),
+  price: z.number().int(),
   note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
-  status: z.string().optional().nullable(),
-  title: z.string().optional().nullable(),
+  status: z.lazy(() => BugReportStatusSchema).optional(),
+  title: z.string(),
   matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutBug_reportInputSchema).optional()
 }).strict();
 
@@ -782,11 +787,11 @@ export const BugReportUpdateInputSchema: z.ZodType<Prisma.BugReportUpdateInput> 
   bug_type: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_size: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   equipment: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => EnumBugReportStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBug_reportsNestedInputSchema).optional(),
   matches: z.lazy(() => MatchUpdateManyWithoutBug_reportNestedInputSchema).optional()
 }).strict();
@@ -800,11 +805,11 @@ export const BugReportUncheckedUpdateInputSchema: z.ZodType<Prisma.BugReportUnch
   bug_type: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_size: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   equipment: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => EnumBugReportStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   matches: z.lazy(() => MatchUncheckedUpdateManyWithoutBug_reportNestedInputSchema).optional()
 }).strict();
 
@@ -817,11 +822,11 @@ export const BugReportCreateManyInputSchema: z.ZodType<Prisma.BugReportCreateMan
   bug_type: z.string().optional().nullable(),
   bug_size: z.string().optional().nullable(),
   equipment: z.string().optional().nullable(),
-  price: z.string().optional().nullable(),
+  price: z.number().int(),
   note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
-  status: z.string().optional().nullable(),
-  title: z.string().optional().nullable()
+  status: z.lazy(() => BugReportStatusSchema).optional(),
+  title: z.string()
 }).strict();
 
 export const BugReportUpdateManyMutationInputSchema: z.ZodType<Prisma.BugReportUpdateManyMutationInput> = z.object({
@@ -831,11 +836,11 @@ export const BugReportUpdateManyMutationInputSchema: z.ZodType<Prisma.BugReportU
   bug_type: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_size: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   equipment: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => EnumBugReportStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const BugReportUncheckedUpdateManyInputSchema: z.ZodType<Prisma.BugReportUncheckedUpdateManyInput> = z.object({
@@ -847,11 +852,11 @@ export const BugReportUncheckedUpdateManyInputSchema: z.ZodType<Prisma.BugReport
   bug_type: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_size: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   equipment: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => EnumBugReportStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const ChatCreateInputSchema: z.ZodType<Prisma.ChatCreateInput> = z.object({
@@ -1233,6 +1238,27 @@ export const DateTimeNullableFilterSchema: z.ZodType<Prisma.DateTimeNullableFilt
   not: z.union([ z.coerce.date(),z.lazy(() => NestedDateTimeNullableFilterSchema) ]).optional().nullable(),
 }).strict();
 
+export const EnumBugReportStatusFilterSchema: z.ZodType<Prisma.EnumBugReportStatusFilter> = z.object({
+  equals: z.lazy(() => BugReportStatusSchema).optional(),
+  in: z.lazy(() => BugReportStatusSchema).array().optional(),
+  notIn: z.lazy(() => BugReportStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => NestedEnumBugReportStatusFilterSchema) ]).optional(),
+}).strict();
+
+export const StringFilterSchema: z.ZodType<Prisma.StringFilter> = z.object({
+  equals: z.string().optional(),
+  in: z.string().array().optional(),
+  notIn: z.string().array().optional(),
+  lt: z.string().optional(),
+  lte: z.string().optional(),
+  gt: z.string().optional(),
+  gte: z.string().optional(),
+  contains: z.string().optional(),
+  startsWith: z.string().optional(),
+  endsWith: z.string().optional(),
+  not: z.union([ z.string(),z.lazy(() => NestedStringFilterSchema) ]).optional(),
+}).strict();
+
 export const UserRelationFilterSchema: z.ZodType<Prisma.UserRelationFilter> = z.object({
   is: z.lazy(() => UserWhereInputSchema).optional(),
   isNot: z.lazy(() => UserWhereInputSchema).optional()
@@ -1273,7 +1299,8 @@ export const BugReportAvgOrderByAggregateInputSchema: z.ZodType<Prisma.BugReport
   id: z.lazy(() => SortOrderSchema).optional(),
   latitude: z.lazy(() => SortOrderSchema).optional(),
   longitude: z.lazy(() => SortOrderSchema).optional(),
-  user_id: z.lazy(() => SortOrderSchema).optional()
+  user_id: z.lazy(() => SortOrderSchema).optional(),
+  price: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const BugReportMaxOrderByAggregateInputSchema: z.ZodType<Prisma.BugReportMaxOrderByAggregateInput> = z.object({
@@ -1312,7 +1339,8 @@ export const BugReportSumOrderByAggregateInputSchema: z.ZodType<Prisma.BugReport
   id: z.lazy(() => SortOrderSchema).optional(),
   latitude: z.lazy(() => SortOrderSchema).optional(),
   longitude: z.lazy(() => SortOrderSchema).optional(),
-  user_id: z.lazy(() => SortOrderSchema).optional()
+  user_id: z.lazy(() => SortOrderSchema).optional(),
+  price: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const IntWithAggregatesFilterSchema: z.ZodType<Prisma.IntWithAggregatesFilter> = z.object({
@@ -1376,6 +1404,33 @@ export const DateTimeNullableWithAggregatesFilterSchema: z.ZodType<Prisma.DateTi
   _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
   _min: z.lazy(() => NestedDateTimeNullableFilterSchema).optional(),
   _max: z.lazy(() => NestedDateTimeNullableFilterSchema).optional()
+}).strict();
+
+export const EnumBugReportStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumBugReportStatusWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => BugReportStatusSchema).optional(),
+  in: z.lazy(() => BugReportStatusSchema).array().optional(),
+  notIn: z.lazy(() => BugReportStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => NestedEnumBugReportStatusWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumBugReportStatusFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumBugReportStatusFilterSchema).optional()
+}).strict();
+
+export const StringWithAggregatesFilterSchema: z.ZodType<Prisma.StringWithAggregatesFilter> = z.object({
+  equals: z.string().optional(),
+  in: z.string().array().optional(),
+  notIn: z.string().array().optional(),
+  lt: z.string().optional(),
+  lte: z.string().optional(),
+  gt: z.string().optional(),
+  gte: z.string().optional(),
+  contains: z.string().optional(),
+  startsWith: z.string().optional(),
+  endsWith: z.string().optional(),
+  not: z.union([ z.string(),z.lazy(() => NestedStringWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedStringFilterSchema).optional(),
+  _max: z.lazy(() => NestedStringFilterSchema).optional()
 }).strict();
 
 export const IntNullableFilterSchema: z.ZodType<Prisma.IntNullableFilter> = z.object({
@@ -1555,20 +1610,6 @@ export const UserReviewSumOrderByAggregateInputSchema: z.ZodType<Prisma.UserRevi
   price: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
-export const StringFilterSchema: z.ZodType<Prisma.StringFilter> = z.object({
-  equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
-  lt: z.string().optional(),
-  lte: z.string().optional(),
-  gt: z.string().optional(),
-  gte: z.string().optional(),
-  contains: z.string().optional(),
-  startsWith: z.string().optional(),
-  endsWith: z.string().optional(),
-  not: z.union([ z.string(),z.lazy(() => NestedStringFilterSchema) ]).optional(),
-}).strict();
-
 export const BugReportListRelationFilterSchema: z.ZodType<Prisma.BugReportListRelationFilter> = z.object({
   every: z.lazy(() => BugReportWhereInputSchema).optional(),
   some: z.lazy(() => BugReportWhereInputSchema).optional(),
@@ -1652,23 +1693,6 @@ export const UserSumOrderByAggregateInputSchema: z.ZodType<Prisma.UserSumOrderBy
   terms_accepted: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
-export const StringWithAggregatesFilterSchema: z.ZodType<Prisma.StringWithAggregatesFilter> = z.object({
-  equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
-  lt: z.string().optional(),
-  lte: z.string().optional(),
-  gt: z.string().optional(),
-  gte: z.string().optional(),
-  contains: z.string().optional(),
-  startsWith: z.string().optional(),
-  endsWith: z.string().optional(),
-  not: z.union([ z.string(),z.lazy(() => NestedStringWithAggregatesFilterSchema) ]).optional(),
-  _count: z.lazy(() => NestedIntFilterSchema).optional(),
-  _min: z.lazy(() => NestedStringFilterSchema).optional(),
-  _max: z.lazy(() => NestedStringFilterSchema).optional()
-}).strict();
-
 export const UserCreateNestedOneWithoutBug_reportsInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutBug_reportsInput> = z.object({
   create: z.union([ z.lazy(() => UserCreateWithoutBug_reportsInputSchema),z.lazy(() => UserUncheckedCreateWithoutBug_reportsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutBug_reportsInputSchema).optional(),
@@ -1701,8 +1725,24 @@ export const NullableStringFieldUpdateOperationsInputSchema: z.ZodType<Prisma.Nu
   set: z.string().optional().nullable()
 }).strict();
 
+export const IntFieldUpdateOperationsInputSchema: z.ZodType<Prisma.IntFieldUpdateOperationsInput> = z.object({
+  set: z.number().optional(),
+  increment: z.number().optional(),
+  decrement: z.number().optional(),
+  multiply: z.number().optional(),
+  divide: z.number().optional()
+}).strict();
+
 export const NullableDateTimeFieldUpdateOperationsInputSchema: z.ZodType<Prisma.NullableDateTimeFieldUpdateOperationsInput> = z.object({
   set: z.coerce.date().optional().nullable()
+}).strict();
+
+export const EnumBugReportStatusFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumBugReportStatusFieldUpdateOperationsInput> = z.object({
+  set: z.lazy(() => BugReportStatusSchema).optional()
+}).strict();
+
+export const StringFieldUpdateOperationsInputSchema: z.ZodType<Prisma.StringFieldUpdateOperationsInput> = z.object({
+  set: z.string().optional()
 }).strict();
 
 export const UserUpdateOneRequiredWithoutBug_reportsNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutBug_reportsNestedInput> = z.object({
@@ -1725,14 +1765,6 @@ export const MatchUpdateManyWithoutBug_reportNestedInputSchema: z.ZodType<Prisma
   update: z.union([ z.lazy(() => MatchUpdateWithWhereUniqueWithoutBug_reportInputSchema),z.lazy(() => MatchUpdateWithWhereUniqueWithoutBug_reportInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => MatchUpdateManyWithWhereWithoutBug_reportInputSchema),z.lazy(() => MatchUpdateManyWithWhereWithoutBug_reportInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => MatchScalarWhereInputSchema),z.lazy(() => MatchScalarWhereInputSchema).array() ]).optional(),
-}).strict();
-
-export const IntFieldUpdateOperationsInputSchema: z.ZodType<Prisma.IntFieldUpdateOperationsInput> = z.object({
-  set: z.number().optional(),
-  increment: z.number().optional(),
-  decrement: z.number().optional(),
-  multiply: z.number().optional(),
-  divide: z.number().optional()
 }).strict();
 
 export const MatchUncheckedUpdateManyWithoutBug_reportNestedInputSchema: z.ZodType<Prisma.MatchUncheckedUpdateManyWithoutBug_reportNestedInput> = z.object({
@@ -1929,10 +1961,6 @@ export const UserReviewUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodTyp
   connect: z.union([ z.lazy(() => UserReviewWhereUniqueInputSchema),z.lazy(() => UserReviewWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
-export const StringFieldUpdateOperationsInputSchema: z.ZodType<Prisma.StringFieldUpdateOperationsInput> = z.object({
-  set: z.string().optional()
-}).strict();
-
 export const BugReportUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.BugReportUpdateManyWithoutUserNestedInput> = z.object({
   create: z.union([ z.lazy(() => BugReportCreateWithoutUserInputSchema),z.lazy(() => BugReportCreateWithoutUserInputSchema).array(),z.lazy(() => BugReportUncheckedCreateWithoutUserInputSchema),z.lazy(() => BugReportUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => BugReportCreateOrConnectWithoutUserInputSchema),z.lazy(() => BugReportCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
@@ -2092,6 +2120,27 @@ export const NestedDateTimeNullableFilterSchema: z.ZodType<Prisma.NestedDateTime
   not: z.union([ z.coerce.date(),z.lazy(() => NestedDateTimeNullableFilterSchema) ]).optional().nullable(),
 }).strict();
 
+export const NestedEnumBugReportStatusFilterSchema: z.ZodType<Prisma.NestedEnumBugReportStatusFilter> = z.object({
+  equals: z.lazy(() => BugReportStatusSchema).optional(),
+  in: z.lazy(() => BugReportStatusSchema).array().optional(),
+  notIn: z.lazy(() => BugReportStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => NestedEnumBugReportStatusFilterSchema) ]).optional(),
+}).strict();
+
+export const NestedStringFilterSchema: z.ZodType<Prisma.NestedStringFilter> = z.object({
+  equals: z.string().optional(),
+  in: z.string().array().optional(),
+  notIn: z.string().array().optional(),
+  lt: z.string().optional(),
+  lte: z.string().optional(),
+  gt: z.string().optional(),
+  gte: z.string().optional(),
+  contains: z.string().optional(),
+  startsWith: z.string().optional(),
+  endsWith: z.string().optional(),
+  not: z.union([ z.string(),z.lazy(() => NestedStringFilterSchema) ]).optional(),
+}).strict();
+
 export const NestedIntWithAggregatesFilterSchema: z.ZodType<Prisma.NestedIntWithAggregatesFilter> = z.object({
   equals: z.number().optional(),
   in: z.number().array().optional(),
@@ -2166,6 +2215,33 @@ export const NestedDateTimeNullableWithAggregatesFilterSchema: z.ZodType<Prisma.
   _max: z.lazy(() => NestedDateTimeNullableFilterSchema).optional()
 }).strict();
 
+export const NestedEnumBugReportStatusWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumBugReportStatusWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => BugReportStatusSchema).optional(),
+  in: z.lazy(() => BugReportStatusSchema).array().optional(),
+  notIn: z.lazy(() => BugReportStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => NestedEnumBugReportStatusWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumBugReportStatusFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumBugReportStatusFilterSchema).optional()
+}).strict();
+
+export const NestedStringWithAggregatesFilterSchema: z.ZodType<Prisma.NestedStringWithAggregatesFilter> = z.object({
+  equals: z.string().optional(),
+  in: z.string().array().optional(),
+  notIn: z.string().array().optional(),
+  lt: z.string().optional(),
+  lte: z.string().optional(),
+  gt: z.string().optional(),
+  gte: z.string().optional(),
+  contains: z.string().optional(),
+  startsWith: z.string().optional(),
+  endsWith: z.string().optional(),
+  not: z.union([ z.string(),z.lazy(() => NestedStringWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedStringFilterSchema).optional(),
+  _max: z.lazy(() => NestedStringFilterSchema).optional()
+}).strict();
+
 export const NestedIntNullableWithAggregatesFilterSchema: z.ZodType<Prisma.NestedIntNullableWithAggregatesFilter> = z.object({
   equals: z.number().optional().nullable(),
   in: z.number().array().optional().nullable(),
@@ -2191,37 +2267,6 @@ export const NestedFloatNullableFilterSchema: z.ZodType<Prisma.NestedFloatNullab
   gt: z.number().optional(),
   gte: z.number().optional(),
   not: z.union([ z.number(),z.lazy(() => NestedFloatNullableFilterSchema) ]).optional().nullable(),
-}).strict();
-
-export const NestedStringFilterSchema: z.ZodType<Prisma.NestedStringFilter> = z.object({
-  equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
-  lt: z.string().optional(),
-  lte: z.string().optional(),
-  gt: z.string().optional(),
-  gte: z.string().optional(),
-  contains: z.string().optional(),
-  startsWith: z.string().optional(),
-  endsWith: z.string().optional(),
-  not: z.union([ z.string(),z.lazy(() => NestedStringFilterSchema) ]).optional(),
-}).strict();
-
-export const NestedStringWithAggregatesFilterSchema: z.ZodType<Prisma.NestedStringWithAggregatesFilter> = z.object({
-  equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
-  lt: z.string().optional(),
-  lte: z.string().optional(),
-  gt: z.string().optional(),
-  gte: z.string().optional(),
-  contains: z.string().optional(),
-  startsWith: z.string().optional(),
-  endsWith: z.string().optional(),
-  not: z.union([ z.string(),z.lazy(() => NestedStringWithAggregatesFilterSchema) ]).optional(),
-  _count: z.lazy(() => NestedIntFilterSchema).optional(),
-  _min: z.lazy(() => NestedStringFilterSchema).optional(),
-  _max: z.lazy(() => NestedStringFilterSchema).optional()
 }).strict();
 
 export const UserCreateWithoutBug_reportsInputSchema: z.ZodType<Prisma.UserCreateWithoutBug_reportsInput> = z.object({
@@ -2467,11 +2512,11 @@ export const BugReportCreateWithoutMatchesInputSchema: z.ZodType<Prisma.BugRepor
   bug_type: z.string().optional().nullable(),
   bug_size: z.string().optional().nullable(),
   equipment: z.string().optional().nullable(),
-  price: z.string().optional().nullable(),
+  price: z.number().int(),
   note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
-  status: z.string().optional().nullable(),
-  title: z.string().optional().nullable(),
+  status: z.lazy(() => BugReportStatusSchema).optional(),
+  title: z.string(),
   user: z.lazy(() => UserCreateNestedOneWithoutBug_reportsInputSchema)
 }).strict();
 
@@ -2484,11 +2529,11 @@ export const BugReportUncheckedCreateWithoutMatchesInputSchema: z.ZodType<Prisma
   bug_type: z.string().optional().nullable(),
   bug_size: z.string().optional().nullable(),
   equipment: z.string().optional().nullable(),
-  price: z.string().optional().nullable(),
+  price: z.number().int(),
   note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
-  status: z.string().optional().nullable(),
-  title: z.string().optional().nullable()
+  status: z.lazy(() => BugReportStatusSchema).optional(),
+  title: z.string()
 }).strict();
 
 export const BugReportCreateOrConnectWithoutMatchesInputSchema: z.ZodType<Prisma.BugReportCreateOrConnectWithoutMatchesInput> = z.object({
@@ -2629,11 +2674,11 @@ export const BugReportUpdateWithoutMatchesInputSchema: z.ZodType<Prisma.BugRepor
   bug_type: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_size: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   equipment: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => EnumBugReportStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBug_reportsNestedInputSchema).optional()
 }).strict();
 
@@ -2646,11 +2691,11 @@ export const BugReportUncheckedUpdateWithoutMatchesInputSchema: z.ZodType<Prisma
   bug_type: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_size: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   equipment: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => EnumBugReportStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UserUpsertWithoutHunter_matchesInputSchema: z.ZodType<Prisma.UserUpsertWithoutHunter_matchesInput> = z.object({
@@ -2854,11 +2899,11 @@ export const BugReportCreateWithoutUserInputSchema: z.ZodType<Prisma.BugReportCr
   bug_type: z.string().optional().nullable(),
   bug_size: z.string().optional().nullable(),
   equipment: z.string().optional().nullable(),
-  price: z.string().optional().nullable(),
+  price: z.number().int(),
   note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
-  status: z.string().optional().nullable(),
-  title: z.string().optional().nullable(),
+  status: z.lazy(() => BugReportStatusSchema).optional(),
+  title: z.string(),
   matches: z.lazy(() => MatchCreateNestedManyWithoutBug_reportInputSchema).optional()
 }).strict();
 
@@ -2870,11 +2915,11 @@ export const BugReportUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.Bu
   bug_type: z.string().optional().nullable(),
   bug_size: z.string().optional().nullable(),
   equipment: z.string().optional().nullable(),
-  price: z.string().optional().nullable(),
+  price: z.number().int(),
   note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
-  status: z.string().optional().nullable(),
-  title: z.string().optional().nullable(),
+  status: z.lazy(() => BugReportStatusSchema).optional(),
+  title: z.string(),
   matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutBug_reportInputSchema).optional()
 }).strict();
 
@@ -3007,11 +3052,11 @@ export const BugReportScalarWhereInputSchema: z.ZodType<Prisma.BugReportScalarWh
   bug_type: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   bug_size: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   equipment: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  price: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  price: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
   note: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
-  status: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
-  title: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => EnumBugReportStatusFilterSchema),z.lazy(() => BugReportStatusSchema) ]).optional(),
+  title: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
 }).strict();
 
 export const MatchUpsertWithWhereUniqueWithoutHunterInputSchema: z.ZodType<Prisma.MatchUpsertWithWhereUniqueWithoutHunterInput> = z.object({
@@ -3152,11 +3197,11 @@ export const BugReportCreateManyUserInputSchema: z.ZodType<Prisma.BugReportCreat
   bug_type: z.string().optional().nullable(),
   bug_size: z.string().optional().nullable(),
   equipment: z.string().optional().nullable(),
-  price: z.string().optional().nullable(),
+  price: z.number().int(),
   note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
-  status: z.string().optional().nullable(),
-  title: z.string().optional().nullable()
+  status: z.lazy(() => BugReportStatusSchema).optional(),
+  title: z.string()
 }).strict();
 
 export const MatchCreateManyHunterInputSchema: z.ZodType<Prisma.MatchCreateManyHunterInput> = z.object({
@@ -3196,11 +3241,11 @@ export const BugReportUpdateWithoutUserInputSchema: z.ZodType<Prisma.BugReportUp
   bug_type: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_size: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   equipment: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => EnumBugReportStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   matches: z.lazy(() => MatchUpdateManyWithoutBug_reportNestedInputSchema).optional()
 }).strict();
 
@@ -3212,11 +3257,11 @@ export const BugReportUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.Bu
   bug_type: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_size: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   equipment: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => EnumBugReportStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   matches: z.lazy(() => MatchUncheckedUpdateManyWithoutBug_reportNestedInputSchema).optional()
 }).strict();
 
@@ -3228,11 +3273,11 @@ export const BugReportUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prism
   bug_type: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_size: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   equipment: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  price: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  title: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => BugReportStatusSchema),z.lazy(() => EnumBugReportStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const MatchUpdateWithoutHunterInputSchema: z.ZodType<Prisma.MatchUpdateWithoutHunterInput> = z.object({
