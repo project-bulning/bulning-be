@@ -4,6 +4,7 @@ import 'dotenv/config';
 import {kakaoLoginRoute} from './routes/kakaoLoginRoute';
 import { bugPostRoute } from './routes/bugPostRoute';
 import { bugListRoute } from './routes/bugListRoute';
+import { userRoute } from '@/routes/user';
 
 const app = express();
 const PORT = 3000;
@@ -17,6 +18,7 @@ app.get('/', (req: Request, res: Response) => {
 app.use('',kakaoLoginRoute);
 app.use('',bugPostRoute);
 app.use('',bugListRoute);
+app.use('',userRoute);
 
 // 서버 시작
 app.listen(PORT, () => {
