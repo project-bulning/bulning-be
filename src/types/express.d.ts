@@ -1,7 +1,6 @@
 import { Request } from 'express';
+import { User } from '@prisma/client';
 
-declare module 'express' {
-  export interface Request {
-    userId?: string;
-  }
+interface AuthenticatedRequest<Params = {}, ReqBody = {}> extends Request<{}, Params, ReqBody> {
+  user?: User;
 }

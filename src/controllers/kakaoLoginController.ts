@@ -15,16 +15,16 @@ export const kakaoCallback = async (req: Request, res: Response) => {
   try {
     const accessToken = await getKakaoToken(code as string);
     const userInfo = await getKakaoUserInfo(accessToken);
-    const { id, properties: { nickname } } = userInfo;
+    const { id: kakaoId, properties: { nickname } } = userInfo;
 
     // id 조회 시 만약 db에서 새로운 사용자일 경우 새롭게 저장
-    await handleUserLogin({ id, nickname });
-  
+    const user = await handleUserLogin({ id: kakaoId, nickname });
+
     // JWT 토큰 생성 후 응답
-    const jwtToken = generateJwtToken(id);
+    const jwtToken = generateJwtToken(user.id, kakaoId);
     const redirectUrl = `${process.env.REDIRECT_URL}/auth/login?access_token=${jwtToken}`;
     res.redirect(redirectUrl as string);
-    
+
   } catch (error) {
     console.error('Error during Kakao login:', error);
     res.status(500).send('Kakao login failed');
