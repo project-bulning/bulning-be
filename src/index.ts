@@ -10,7 +10,9 @@ import cors from 'cors';
 const app = express();
 const PORT = 3000;
 app.use(express.json({ limit: '1mb' }));
-app.use(cors())
+app.use(cors({
+  origin: '*'
+}));
 
 // 기본 라우트 설정
 app.get('/', (req: Request, res: Response) => {
