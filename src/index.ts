@@ -1,14 +1,16 @@
 // src/index.ts
 import express, { Request, Response } from 'express';
 import 'dotenv/config';
-import {kakaoLoginRoute} from './routes/kakaoLoginRoute';
+import { kakaoLoginRoute } from './routes/kakaoLoginRoute';
 import { bugPostRoute } from './routes/bugPostRoute';
 import { bugListRoute } from './routes/bugListRoute';
 import { userRoute } from '@/routes/user';
+import cors from 'cors';
 
 const app = express();
 const PORT = 3000;
 app.use(express.json({ limit: '1mb' }));
+app.use(cors())
 
 // 기본 라우트 설정
 app.get('/', (req: Request, res: Response) => {
