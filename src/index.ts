@@ -1,5 +1,4 @@
-// src/index.ts
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
 import { kakaoLoginRoute } from './routes/kakaoLoginRoute';
 import { bugPostRoute } from './routes/bugPostRoute';
@@ -8,26 +7,40 @@ import { userRoute } from '@/routes/user';
 import cors from 'cors';
 import fs from 'node:fs';
 import https from 'https';
+import * as path from 'node:path';
+import { sendError } from '@/utils/response';
+import { StatusCodes } from 'http-status-codes';
 
 const app = express();
 const DEV_PORT = 3000;
 const PRODUCTION_PORT = 443;
-const API_PREFIX = '/api'
+const API_PREFIX = '/api';
+const VIEW_DIRECTORY = path.resolve(process.env.VIEW_DIRECTORY as string);
 
 app.use(express.json({ limit: '1mb' }));
 app.use(cors({
   origin: '*'
 }));
 
-// 기본 라우트 설정
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, TypeScript with Express!');
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  express.static(VIEW_DIRECTORY)(req, res, next);
 });
 
 app.use(API_PREFIX, kakaoLoginRoute);
 app.use(API_PREFIX, bugPostRoute);
 app.use(API_PREFIX, bugListRoute);
 app.use(API_PREFIX, userRoute);
+
+app.get('*', (req: Request, res: Response) => {
+  if (req.path.startsWith('/api')) {
+    sendError(res, 'API NOT FOUND', StatusCodes.NOT_FOUND);
+  } else {
+    res.sendFile(path.join(VIEW_DIRECTORY, 'index.html'));
+  }
+});
 
 // 서버 시작
 if(process.env.NODE_ENV === 'production') {
