@@ -51,9 +51,7 @@ jobs:
           username: ${{ secrets.ssh_user }}
           key: ${{ secrets.ssh_key }}
           script: |
-            export NVM_DIR="~/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             cd ~/${{ secrets.serverdir }}
             git pull origin ${{ github.ref_name }}
             npm install
-            npx pm2 start 'npm run start'
+            sudo npx pm2 start 'npm run start'
