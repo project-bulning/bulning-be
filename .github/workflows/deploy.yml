@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - feature/SCRUM-84-deploy # 추후에 제거
 
 jobs:
   deploy:
