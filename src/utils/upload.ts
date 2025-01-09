@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 type UploadedFile= Express.Multer.File;
 const bucketName = process.env.AWS_BUCKET_NAME;
 const region = process.env.AWS_REGION;
+const directory = process.env.AWS_BUCKET_DIRECTORY
 
 const s3Client = new S3Client({
   credentials: fromEnv(),
@@ -32,6 +33,14 @@ function getFileUrl(key: string) {
 function generateFileKey(file: Express.Multer.File) {
   const ext = path.extname(file.originalname);
   const uniqueName = `${Date.now()}-${uuidv4()}${ext}`;
-  return `${process.env.AWS_BUCKET_DIRECTORY}/${uniqueName}`;
+  return `${directory}/${uniqueName}`;
+}
+
+export function isValidS3Url(url: string): boolean {
+  const s3UrlPattern = new RegExp(
+    `^https://${bucketName}\.s3\.${region}\.amazonaws\.com/${directory}/[^\\s]+$`
+  );
+
+  return s3UrlPattern.test(url);
 }
 
