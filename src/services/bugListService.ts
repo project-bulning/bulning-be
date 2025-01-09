@@ -1,6 +1,6 @@
 import prisma from '@/utils/database';
 import { Prisma } from '@prisma/client';
-import { SimplifiedBugReport, GetBugReportsResponse, ProcessedBugReport,GetBugReportDetailsResponse } from '@/dto/reportDto';
+import { GetBugReportsResponse, ProcessedBugReport,GetBugReportDetailsResponse } from '@/dto/reportDto';
 import { differenceInMinutes, format } from 'date-fns';
 
 //벌레 리포트 리스트 전체 조회 로직
@@ -17,16 +17,16 @@ export const getAllBugReports = async (
       bug_image_url,
       price,
       ST_DISTANCE_SPHERE(
-        POINT(latitude, longitude),
-        POINT(${currentLatitude}, ${currentLongitude})
+        POINT(longitude,latitude),
+        POINT(${currentLongitude},${currentLatitude})
       ) AS distance
-    FROM bug_report
+    FROM BugReport
     ORDER BY distance ASC;
   `;
 
   const reports = await prisma.$queryRaw<
-    (SimplifiedBugReport & { distance: number })[]
-  >(selectQuery as unknown as Prisma.Sql);
+    (ProcessedBugReport & { distance: number, price: number })[]
+  >(selectQuery as Prisma.Sql);
 
 
   //현재 시간 기준으로 몇 분 전인지
@@ -56,7 +56,7 @@ export const getAllBugReports = async (
     return {
       id: report.id,
       created_at: createdAtLabel,
-      status: report.status|| 'UNKNOWN',
+      status: report.status || 'UNKNOWN',
       bug_image_url: report.bug_image_url,
       price: report.price,
     };
