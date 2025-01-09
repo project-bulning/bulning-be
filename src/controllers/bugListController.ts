@@ -33,7 +33,8 @@ export const getBugReportDetail = async (
   }
 
   try {
-    const id  = req.params;
+    const { id }  = req.params;
+    console.log(Number(id))
     if (!id || isNaN(Number(id))) {
       return sendError(res, '유효한 버그 리포트 ID를 제공해야 합니다.'); 
     }
