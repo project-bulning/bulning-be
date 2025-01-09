@@ -12,20 +12,20 @@ datasource db {
 }
 
 model BugReport {
-  id            Int       @id @default(autoincrement())
+  id            Int              @id @default(autoincrement())
   latitude      Float
   longitude     Float
   user_id       Int
-  bug_image_url String?   @db.VarChar(255)
-  bug_type      String?   @db.VarChar(255)
-  bug_size      String?   @db.VarChar(255)
-  equipment     String?   @db.VarChar(255)
-  price         String?   @db.VarChar(50)
-  note          String?   @db.Text
-  created_at    DateTime? @default(now()) @db.Timestamp(0)
-  status        String?   @db.VarChar(50)
-  title         String?   @db.VarChar(225)
-  user          User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bug_reports_user_fk")
+  bug_image_url String?          @db.VarChar(255)
+  bug_type      String?          @db.VarChar(255)
+  bug_size      String?          @db.VarChar(255)
+  equipment     String?          @db.VarChar(255)
+  price         Int
+  note          String?          @db.Text
+  created_at    DateTime?        @default(now()) @db.Timestamp(0)
+  status        BugReport_status @default(WAITING_MATCH)
+  title         String           @db.VarChar(225)
+  user          User             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bug_reports_user_fk")
   matches       Match[]
 
   @@index([user_id], map: "bug_reports_user_fk")
@@ -53,8 +53,8 @@ model Match {
   rejected_at   DateTime?  @db.Timestamp(0)
   chats         Chat[]
   bug_report    BugReport? @relation(fields: [bug_report_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_bug_report_fk")
-  hunter        User       @relation("User_Hunter_Matches", fields: [hunter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_hunter_fk")
   helper        User       @relation("User_Helper_Matches", fields: [helper_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_helper_fk")
+  hunter        User       @relation("User_Hunter_Matches", fields: [hunter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_hunter_fk")
 
   @@index([bug_report_id], map: "matches_bug_report_fk")
   @@index([hunter_id], map: "matches_hunter_fk")
@@ -91,7 +91,13 @@ model User {
   updated_at     DateTime?    @default(now()) @db.Timestamp(0)
   terms_accepted Int?         @db.TinyInt
   bug_reports    BugReport[]
-  hunter_matches Match[]      @relation("User_Hunter_Matches")
   helper_matches Match[]      @relation("User_Helper_Matches")
+  hunter_matches Match[]      @relation("User_Hunter_Matches")
   user_reviews   UserReview[]
+}
+
+enum BugReport_status {
+  WAITING_MATCH
+  PENDING
+  COMPLETED
 }
