@@ -14,7 +14,7 @@ export const authenticateToken = async (
 ) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
+  if (!authHeader || typeof authHeader !== 'string') {
     sendError(res, ReasonPhrases.UNAUTHORIZED, StatusCodes.UNAUTHORIZED);
     return;
   }
@@ -32,6 +32,7 @@ export const authenticateToken = async (
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as ExtendedJWTPayload | string;
+    console.log(decoded);
 
     if (typeof decoded !== 'object' || !decoded.id) {
       res.status(401).json({message: 'Invalid token payload'});

@@ -40,14 +40,21 @@ export const userInfo = async (
   req: AuthenticatedRequest<{}, RegistrationRequestBody>,
   res: Response
 ) => {
-  if(! req.user) {
-      return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
+  // 사용자 인증 확인
+  if (!req.user) {
+    return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
   }
+
   try {
     await handlUserInfoLogic(req.body, req.user);
-    res.status(StatusCodes.CREATED);
+    res.status(StatusCodes.CREATED).json({
+      message: '사용자 정보가 성공적으로 업데이트되었습니다.',
+    });
   } catch (error) {
     console.error('Error during user information update:', error);
-    res.status(500).json({ message: 'Registration failed due to an internal error' });
+    res.status(500).json({
+      message: 'Registration failed due to an internal error',
+    });
   }
 };
+

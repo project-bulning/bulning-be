@@ -1,11 +1,10 @@
 import jwt from 'jsonwebtoken';
-import { KaKaoUserDTO } from '@/dto/userDto';
-import { PrismaClient } from '@prisma/client';
+import { KaKaoUserDTO, RegistrationRequestBody } from '@/dto/userDto';
 import type { Response } from 'express';
 import type { AuthenticatedRequest } from '@/types/express';
 import { ExtendedJWTPayload } from '@/dto/authDto';
-
-const prisma = new PrismaClient();
+import type { User } from '@prisma/client';
+import prisma from '@/utils/database';
 
 // JWT 토큰 생성 함수
 export const generateJwtToken = (id: number, kakaoId: string): string => {
