@@ -3,10 +3,10 @@ import { sendError } from '@/utils/response';
 import { AuthenticatedRequest } from '@/types/express';
 import { StatusCodes } from 'http-status-codes';
 import { getAllBugReports, fetchPostDetail } from '@/services/bugListService';
-import { GetBugReportsResponse,GetBugReportDetailsResponse} from '@/dto/reportDto';
+import { GetBugReportListRequestBody,GetBugReportsResponse,GetBugReportDetailsResponse} from '@/dto/reportDto';
 
 // 사냥 리스트 조회
-export const getBugReportList = async (req: Request, res: Response<GetBugReportsResponse>)=>{
+export const getBugReportList = async (req: Request<GetBugReportListRequestBody>, res: Response<GetBugReportsResponse>)=>{
   try {
     const { currentLatitude, currentLongitude } = req.body;
 
@@ -47,9 +47,6 @@ export const getBugReportDetail = async (
     res.status(StatusCodes.OK).json(bugReportDetail);
   } catch (error) {
     console.error('Error fetching bug report details:', error);
-    return sendError(res, '버그 리포트 상세 정보를 가져오는 중 오류가 발생했습니다.');
-    // res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-    //   message: '버그 리포트 상세 정보를 가져오는 중 오류가 발생했습니다.',
-    // });
+    return sendError(res, '버그 리포트 상세 정보를 가져오는 중 오류가 발생했습니다.',500);
   }
 };
