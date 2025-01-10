@@ -4,7 +4,7 @@ import {RegistrationRequestBody} from '@/dto/userDto';
 import { sendError } from '@/utils/response';
 import { StatusCodes } from 'http-status-codes';
 import { getKakaoToken, getKakaoUserInfo } from '../services/kakaoLoginService';
-import { handleUserLogin, generateJwtToken, handlUserInfoLogic } from '../services/userAuthService';
+import { handleUserLogin, generateJwtToken, handleUserInfoInput } from '../services/userAuthService';
 
 // Kakao 로그인 URL 생성 - 사용자가 로그인 버튼을 눌렀을 때 이 URL로 이동시킵니다.
 export const kakaoLogin = (req: Request, res: Response): void => {
@@ -46,15 +46,13 @@ export const userInfo = async (
   }
 
   try {
-    await handlUserInfoLogic(req.body, req.user);
+    await handleUserInfoInput(req.body, req.user);
     res.status(StatusCodes.CREATED).json({
       message: '사용자 정보가 성공적으로 업데이트되었습니다.',
     });
   } catch (error) {
     console.error('Error during user information update:', error);
-    res.status(500).json({
-      message: 'Registration failed due to an internal error',
-    });
+    return sendError(res, '회원 가입 처리 중 오류가 발생했습니다.',500);
   }
 };
 
