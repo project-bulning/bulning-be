@@ -16,3 +16,8 @@ export type GetBugReportDetailsResponse = BugReport;
 export interface CreateBugImageResponse {
     image_url: string;
 }
+
+export type GetBugReportListRequestBody = {
+    currentLatitude: number;
+    currentLongitude: number;
+}
