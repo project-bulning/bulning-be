@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 import { KaKaoUserDTO, RegistrationRequestBody } from '@/dto/userDto';
-import type { Response } from 'express';
-import type { AuthenticatedRequest } from '@/types/express';
 import { ExtendedJWTPayload } from '@/dto/authDto';
 import type { User } from '@prisma/client';
 import prisma from '@/utils/database';
+import { z } from 'zod';
+import {registrationSchema} from '@/validators/userValidator';
 
 // JWT 토큰 생성 함수
 export const generateJwtToken = (id: number, kakaoId: string): string => {
@@ -45,11 +45,16 @@ export const handleUserLogin = async (user: KaKaoUserDTO) => {
 
 
 //회원 가입 -> 사용자 정보 추가 로직
-export const handlUserInfoLogic =  async (data: RegistrationRequestBody, user: User) => {
+export const handleUserInfoInput =  async (data: RegistrationRequestBody, user: User) => {
 
-  // 약관 동의 여부 확인
-  if (!data.termsAccepted) {
-    throw new Error('서비스 약관에 동의하지 않았습니다.');
+  // 데이터 검증
+  try {
+    registrationSchema.parse(data); // 스키마에 따라 데이터 검증
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new Error(`Validation Error: ${error.errors.map((e) => e.message).join(', ')}`);
+    }
+    throw error;
   }
   
   return prisma.user.update({
@@ -64,5 +69,3 @@ export const handlUserInfoLogic =  async (data: RegistrationRequestBody, user: U
     },
   });
 };
-
-
