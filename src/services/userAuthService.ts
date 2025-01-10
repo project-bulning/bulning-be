@@ -1,11 +1,10 @@
 import jwt from 'jsonwebtoken';
-import { KaKaoUserDTO } from '@/dto/userDto';
-import { PrismaClient } from '@prisma/client';
-import type { Response } from 'express';
-import type { AuthenticatedRequest } from '@/types/express';
+import { KaKaoUserDTO, RegistrationRequestBody } from '@/dto/userDto';
 import { ExtendedJWTPayload } from '@/dto/authDto';
-
-const prisma = new PrismaClient();
+import type { User } from '@prisma/client';
+import prisma from '@/utils/database';
+import { z } from 'zod';
+import {registrationSchema} from '@/validators/userValidator';
 
 // JWT 토큰 생성 함수
 export const generateJwtToken = (id: number, kakaoId: string): string => {
@@ -44,41 +43,29 @@ export const handleUserLogin = async (user: KaKaoUserDTO) => {
   }
 };
 
+
 //회원 가입 -> 사용자 정보 추가 로직
-export const handlUserInfoLogic = async (
-  req: AuthenticatedRequest,
-  res: Response,
-) => {
-  // const {  gender, ageRange, phoneNumber, location, termsAccepted } = req.body;
+export const handleUserInfoInput =  async (data: RegistrationRequestBody, user: User) => {
 
-  // //약관 동의 필드 필수 true
-  // if (!termsAccepted) {
-  //   return {
-  //     status: 400,
-  //     data: { message: 'Terms must be accepted to register' },
-  //   };
-  // }
-
-  //userId를 조회해서 db에 접근한 후 req.body에 있는 정보 db에 추가 저장하는 코드
-  // try {
-  //   await prisma.user.update({
-  //     where: { id: parseInt(req.userId) },
-  //     data: {
-  //       gender,
-  //       age_group: ageRange,
-  //       phone_number: phoneNumber,
-  //       location,
-  //       terms_accepted: termsAccepted ? 1 : 0,
-  //       updated_at: new Date(),
-  //     },
-  //   });
-
-  //   res.status(200).json({ message: 'User registration details updated successfully' });
-  // } catch (error) {
-  //   console.error('Failed to update user registration details:', error);
-  //   res.status(500).json({ message: 'Failed to update user registration details' });
-  // }
-
+  // 데이터 검증
+  try {
+    registrationSchema.parse(data); // 스키마에 따라 데이터 검증
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new Error(`Validation Error: ${error.errors.map((e) => e.message).join(', ')}`);
+    }
+    throw error;
+  }
+  
+  return prisma.user.update({
+    where: { id: user.id },
+    data: {
+      phone_number: data.phoneNumber,
+      location: data.location,
+      gender: data.gender,
+      age_group: data.ageRange,
+      terms_accepted: data.termsAccepted ? 1 : 0, // boolean 값을 DB의 Int로 매핑
+      updated_at: new Date(),
+    },
+  });
 };
-
-

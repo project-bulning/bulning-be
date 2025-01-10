@@ -5,9 +5,10 @@ export type CreateBugReportResponse = {
     bug_report_id: number;
 }
 
-export type SimplifiedBugReport = Pick<BugReport, 'id' | 'created_at' | 'status' | 'bug_image_url' | 'price'>;
+export type ProcessedBugReport = Pick<BugReport, 'id' | 'status' | 'bug_image_url' | 'price'>
+  & { created_at: Date | string};
 export type GetBugReportsResponse = {
-    bug_reports: SimplifiedBugReport[];
+    bug_reports: ProcessedBugReport[];
 }
 
 export type GetBugReportDetailsResponse = BugReport;
@@ -16,3 +17,7 @@ export interface CreateBugImageResponse {
     image_url: string;
 }
 
+export type GetBugReportListRequestBody = {
+    currentLatitude: number;
+    currentLongitude: number;
+}
