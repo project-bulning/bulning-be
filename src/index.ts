@@ -10,6 +10,7 @@ import https from 'https';
 import * as path from 'node:path';
 import { sendError } from '@/utils/response';
 import { StatusCodes } from 'http-status-codes';
+import { alarmRoute } from './routes/alarmRoute';
 
 const app = express();
 const DEV_PORT = 3000;
@@ -33,6 +34,7 @@ app.use(API_PREFIX, kakaoLoginRoute);
 app.use(API_PREFIX, bugPostRoute);
 app.use(API_PREFIX, bugListRoute);
 app.use(API_PREFIX, userRoute);
+app.use(API_PREFIX, alarmRoute);
 
 app.get('*', (req: Request, res: Response) => {
   if (req.path.startsWith('/api')) {
