@@ -31,12 +31,6 @@ model BugReport {
   @@index([user_id], map: "bug_reports_user_fk")
 }
 
-enum BugReportStatus {
-  WAITING_MATCH
-  PENDING
-  COMPLETED
-}
-
 model Chat {
   id         Int       @id @default(autoincrement())
   match_id   Int?
@@ -93,6 +87,7 @@ model User {
   age_group      String?      @db.VarChar(50)
   email          String?      @db.VarChar(255)
   password       String?      @db.VarChar(255)
+  fcm_token      String?      @db.VarChar(225)
   created_at     DateTime?    @default(now()) @db.Timestamp(0)
   updated_at     DateTime?    @default(now()) @db.Timestamp(0)
   terms_accepted Int?         @db.TinyInt
@@ -102,7 +97,7 @@ model User {
   user_reviews   UserReview[]
 }
 
-enum BugReport_status {
+enum BugReportStatus {
   WAITING_MATCH
   PENDING
   COMPLETED
