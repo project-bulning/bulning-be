@@ -10,7 +10,11 @@ import https from 'https';
 import * as path from 'node:path';
 import { sendError } from '@/utils/response';
 import { StatusCodes } from 'http-status-codes';
+<<<<<<< HEAD
 import { matchRoute } from '@/routes/match';
+=======
+import { alarmRoute } from './routes/alarmRoute';
+>>>>>>> 2f960ec (Feat: fcm토큰 db에 저장장)
 
 const app = express();
 const DEV_PORT = 3000;
@@ -34,7 +38,11 @@ app.use(API_PREFIX, kakaoLoginRoute);
 app.use(API_PREFIX, bugPostRoute);
 app.use(API_PREFIX, bugListRoute);
 app.use(API_PREFIX, userRoute);
+<<<<<<< HEAD
 app.use(API_PREFIX, matchRoute);
+=======
+app.use(API_PREFIX, alarmRoute);
+>>>>>>> 2f960ec (Feat: fcm토큰 db에 저장장)
 
 app.get('*', (req: Request, res: Response) => {
   if (req.path.startsWith('/api')) {
