@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { sendError } from '@/utils/response';
 import { AuthenticatedRequest } from '@/types/express';
 import { StatusCodes } from 'http-status-codes';
-import { registerTokenService } from '@/services/alarmService';
+import { registerTokenService, sendAlarmService } from '@/services/alarmService';
 
 
 export const registerTokenController = async (
@@ -24,4 +24,25 @@ export const registerTokenController = async (
         console.error(e);
         return sendError(res, '게시글 업로드에 실패했습니다.');
     }
+};
+
+export const sendAlarmController = async (
+  req: AuthenticatedRequest<{reportId:string},{}>, 
+  res: Response
+) => {
+  if(! req.user) {
+    return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
+}
+  const reportId = req.params;
+
+  if (!reportId || isNaN(Number(reportId))){
+    return sendError(res, '유효한 report ID가 필요합니다.');
+  }
+
+  try {
+    await sendAlarmService(Number(reportId),req.user);
+    res.status(200).json({ message: "핼피에게 알림이 전송되었습니다다" });
+  } catch (error) {
+    return sendError(res, '알람 전송 중 오류가 발생했습니다.',500); 
+  }
 };
