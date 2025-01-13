@@ -49,22 +49,27 @@ model Chat {
 }
 
 model Match {
-  id            Int        @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   bug_report_id Int?
   helper_id     Int
   hunter_id     Int
-  status        String?    @db.VarChar(50)
-  created_at    DateTime?  @default(now()) @db.Timestamp(0)
-  accepted_at   DateTime?  @db.Timestamp(0)
-  rejected_at   DateTime?  @db.Timestamp(0)
+  status        MatchStatus
+  created_at    DateTime?   @default(now()) @db.Timestamp(0)
+  resolved_at   DateTime?   @db.Timestamp(0)
   chats         Chat[]
-  bug_report    BugReport? @relation(fields: [bug_report_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_bug_report_fk")
-  helper        User       @relation("User_Helper_Matches", fields: [helper_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_helper_fk")
-  hunter        User       @relation("User_Hunter_Matches", fields: [hunter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_hunter_fk")
+  bug_report    BugReport?  @relation(fields: [bug_report_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_bug_report_fk")
+  helper        User        @relation("User_Helper_Matches", fields: [helper_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_helper_fk")
+  hunter        User        @relation("User_Hunter_Matches", fields: [hunter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "matches_hunter_fk")
 
   @@index([bug_report_id], map: "matches_bug_report_fk")
   @@index([hunter_id], map: "matches_hunter_fk")
   @@index([helper_id], map: "matches_helper_fk")
+}
+
+enum MatchStatus {
+  MATCH_ACCEPTED
+  PENDING
+  MATCH_REJECTED
 }
 
 model UserReview {
@@ -100,10 +105,4 @@ model User {
   helper_matches Match[]      @relation("User_Helper_Matches")
   hunter_matches Match[]      @relation("User_Hunter_Matches")
   user_reviews   UserReview[]
-}
-
-enum BugReport_status {
-  WAITING_MATCH
-  PENDING
-  COMPLETED
 }

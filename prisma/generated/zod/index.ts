@@ -16,7 +16,7 @@ export const BugReportScalarFieldEnumSchema = z.enum(['id','latitude','longitude
 
 export const ChatScalarFieldEnumSchema = z.enum(['id','match_id','status','created_at','blocked_at']);
 
-export const MatchScalarFieldEnumSchema = z.enum(['id','bug_report_id','helper_id','hunter_id','status','created_at','accepted_at','rejected_at']);
+export const MatchScalarFieldEnumSchema = z.enum(['id','bug_report_id','helper_id','hunter_id','status','created_at','resolved_at']);
 
 export const UserReviewScalarFieldEnumSchema = z.enum(['id','user_id','role','score','time_taken','price','review_note','created_at']);
 
@@ -30,9 +30,9 @@ export const BugReportStatusSchema = z.enum(['WAITING_MATCH','PENDING','COMPLETE
 
 export type BugReportStatusType = `${z.infer<typeof BugReportStatusSchema>}`
 
-export const BugReport_statusSchema = z.enum(['WAITING_MATCH','PENDING','COMPLETED']);
+export const MatchStatusSchema = z.enum(['MATCH_ACCEPTED','PENDING','MATCH_REJECTED']);
 
-export type BugReport_statusType = `${z.infer<typeof BugReport_statusSchema>}`
+export type MatchStatusType = `${z.infer<typeof MatchStatusSchema>}`
 
 /////////////////////////////////////////
 // MODELS
@@ -79,14 +79,13 @@ export type Chat = z.infer<typeof ChatSchema>
 /////////////////////////////////////////
 
 export const MatchSchema = z.object({
+  status: MatchStatusSchema,
   id: z.number().int(),
   bug_report_id: z.number().int().nullable(),
   helper_id: z.number().int(),
   hunter_id: z.number().int(),
-  status: z.string().nullable(),
   created_at: z.coerce.date().nullable(),
-  accepted_at: z.coerce.date().nullable(),
-  rejected_at: z.coerce.date().nullable(),
+  resolved_at: z.coerce.date().nullable(),
 })
 
 export type Match = z.infer<typeof MatchSchema>
@@ -228,8 +227,7 @@ export const MatchSelectSchema: z.ZodType<Prisma.MatchSelect> = z.object({
   hunter_id: z.boolean().optional(),
   status: z.boolean().optional(),
   created_at: z.boolean().optional(),
-  accepted_at: z.boolean().optional(),
-  rejected_at: z.boolean().optional(),
+  resolved_at: z.boolean().optional(),
   chats: z.union([z.boolean(),z.lazy(() => ChatFindManyArgsSchema)]).optional(),
   bug_report: z.union([z.boolean(),z.lazy(() => BugReportArgsSchema)]).optional(),
   helper: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
@@ -486,10 +484,9 @@ export const MatchWhereInputSchema: z.ZodType<Prisma.MatchWhereInput> = z.object
   bug_report_id: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
   helper_id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
   hunter_id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
-  status: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => EnumMatchStatusFilterSchema),z.lazy(() => MatchStatusSchema) ]).optional(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
-  accepted_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
-  rejected_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  resolved_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   chats: z.lazy(() => ChatListRelationFilterSchema).optional(),
   bug_report: z.union([ z.lazy(() => BugReportNullableRelationFilterSchema),z.lazy(() => BugReportWhereInputSchema) ]).optional().nullable(),
   helper: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
@@ -501,10 +498,9 @@ export const MatchOrderByWithRelationInputSchema: z.ZodType<Prisma.MatchOrderByW
   bug_report_id: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   helper_id: z.lazy(() => SortOrderSchema).optional(),
   hunter_id: z.lazy(() => SortOrderSchema).optional(),
-  status: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  accepted_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  rejected_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  resolved_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   chats: z.lazy(() => ChatOrderByRelationAggregateInputSchema).optional(),
   bug_report: z.lazy(() => BugReportOrderByWithRelationInputSchema).optional(),
   helper: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
@@ -522,10 +518,9 @@ export const MatchWhereUniqueInputSchema: z.ZodType<Prisma.MatchWhereUniqueInput
   bug_report_id: z.union([ z.lazy(() => IntNullableFilterSchema),z.number().int() ]).optional().nullable(),
   helper_id: z.union([ z.lazy(() => IntFilterSchema),z.number().int() ]).optional(),
   hunter_id: z.union([ z.lazy(() => IntFilterSchema),z.number().int() ]).optional(),
-  status: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => EnumMatchStatusFilterSchema),z.lazy(() => MatchStatusSchema) ]).optional(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
-  accepted_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
-  rejected_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  resolved_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   chats: z.lazy(() => ChatListRelationFilterSchema).optional(),
   bug_report: z.union([ z.lazy(() => BugReportNullableRelationFilterSchema),z.lazy(() => BugReportWhereInputSchema) ]).optional().nullable(),
   helper: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
@@ -537,10 +532,9 @@ export const MatchOrderByWithAggregationInputSchema: z.ZodType<Prisma.MatchOrder
   bug_report_id: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   helper_id: z.lazy(() => SortOrderSchema).optional(),
   hunter_id: z.lazy(() => SortOrderSchema).optional(),
-  status: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  accepted_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  rejected_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  resolved_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   _count: z.lazy(() => MatchCountOrderByAggregateInputSchema).optional(),
   _avg: z.lazy(() => MatchAvgOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => MatchMaxOrderByAggregateInputSchema).optional(),
@@ -556,10 +550,9 @@ export const MatchScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.MatchSc
   bug_report_id: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema),z.number() ]).optional().nullable(),
   helper_id: z.union([ z.lazy(() => IntWithAggregatesFilterSchema),z.number() ]).optional(),
   hunter_id: z.union([ z.lazy(() => IntWithAggregatesFilterSchema),z.number() ]).optional(),
-  status: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => EnumMatchStatusWithAggregatesFilterSchema),z.lazy(() => MatchStatusSchema) ]).optional(),
   created_at: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
-  accepted_at: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
-  rejected_at: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
+  resolved_at: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
 }).strict();
 
 export const UserReviewWhereInputSchema: z.ZodType<Prisma.UserReviewWhereInput> = z.object({
@@ -916,10 +909,9 @@ export const ChatUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ChatUncheckedU
 }).strict();
 
 export const MatchCreateInputSchema: z.ZodType<Prisma.MatchCreateInput> = z.object({
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable(),
+  resolved_at: z.coerce.date().optional().nullable(),
   chats: z.lazy(() => ChatCreateNestedManyWithoutMatchInputSchema).optional(),
   bug_report: z.lazy(() => BugReportCreateNestedOneWithoutMatchesInputSchema).optional(),
   helper: z.lazy(() => UserCreateNestedOneWithoutHelper_matchesInputSchema),
@@ -931,18 +923,16 @@ export const MatchUncheckedCreateInputSchema: z.ZodType<Prisma.MatchUncheckedCre
   bug_report_id: z.number().int().optional().nullable(),
   helper_id: z.number().int(),
   hunter_id: z.number().int(),
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable(),
+  resolved_at: z.coerce.date().optional().nullable(),
   chats: z.lazy(() => ChatUncheckedCreateNestedManyWithoutMatchInputSchema).optional()
 }).strict();
 
 export const MatchUpdateInputSchema: z.ZodType<Prisma.MatchUpdateInput> = z.object({
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   chats: z.lazy(() => ChatUpdateManyWithoutMatchNestedInputSchema).optional(),
   bug_report: z.lazy(() => BugReportUpdateOneWithoutMatchesNestedInputSchema).optional(),
   helper: z.lazy(() => UserUpdateOneRequiredWithoutHelper_matchesNestedInputSchema).optional(),
@@ -954,10 +944,9 @@ export const MatchUncheckedUpdateInputSchema: z.ZodType<Prisma.MatchUncheckedUpd
   bug_report_id: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   helper_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   hunter_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   chats: z.lazy(() => ChatUncheckedUpdateManyWithoutMatchNestedInputSchema).optional()
 }).strict();
 
@@ -966,17 +955,15 @@ export const MatchCreateManyInputSchema: z.ZodType<Prisma.MatchCreateManyInput> 
   bug_report_id: z.number().int().optional().nullable(),
   helper_id: z.number().int(),
   hunter_id: z.number().int(),
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable()
+  resolved_at: z.coerce.date().optional().nullable()
 }).strict();
 
 export const MatchUpdateManyMutationInputSchema: z.ZodType<Prisma.MatchUpdateManyMutationInput> = z.object({
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const MatchUncheckedUpdateManyInputSchema: z.ZodType<Prisma.MatchUncheckedUpdateManyInput> = z.object({
@@ -984,10 +971,9 @@ export const MatchUncheckedUpdateManyInputSchema: z.ZodType<Prisma.MatchUnchecke
   bug_report_id: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   helper_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   hunter_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserReviewCreateInputSchema: z.ZodType<Prisma.UserReviewCreateInput> = z.object({
@@ -1503,6 +1489,13 @@ export const IntNullableWithAggregatesFilterSchema: z.ZodType<Prisma.IntNullable
   _max: z.lazy(() => NestedIntNullableFilterSchema).optional()
 }).strict();
 
+export const EnumMatchStatusFilterSchema: z.ZodType<Prisma.EnumMatchStatusFilter> = z.object({
+  equals: z.lazy(() => MatchStatusSchema).optional(),
+  in: z.lazy(() => MatchStatusSchema).array().optional(),
+  notIn: z.lazy(() => MatchStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => NestedEnumMatchStatusFilterSchema) ]).optional(),
+}).strict();
+
 export const ChatListRelationFilterSchema: z.ZodType<Prisma.ChatListRelationFilter> = z.object({
   every: z.lazy(() => ChatWhereInputSchema).optional(),
   some: z.lazy(() => ChatWhereInputSchema).optional(),
@@ -1525,8 +1518,7 @@ export const MatchCountOrderByAggregateInputSchema: z.ZodType<Prisma.MatchCountO
   hunter_id: z.lazy(() => SortOrderSchema).optional(),
   status: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.lazy(() => SortOrderSchema).optional(),
-  accepted_at: z.lazy(() => SortOrderSchema).optional(),
-  rejected_at: z.lazy(() => SortOrderSchema).optional()
+  resolved_at: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const MatchAvgOrderByAggregateInputSchema: z.ZodType<Prisma.MatchAvgOrderByAggregateInput> = z.object({
@@ -1543,8 +1535,7 @@ export const MatchMaxOrderByAggregateInputSchema: z.ZodType<Prisma.MatchMaxOrder
   hunter_id: z.lazy(() => SortOrderSchema).optional(),
   status: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.lazy(() => SortOrderSchema).optional(),
-  accepted_at: z.lazy(() => SortOrderSchema).optional(),
-  rejected_at: z.lazy(() => SortOrderSchema).optional()
+  resolved_at: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const MatchMinOrderByAggregateInputSchema: z.ZodType<Prisma.MatchMinOrderByAggregateInput> = z.object({
@@ -1554,8 +1545,7 @@ export const MatchMinOrderByAggregateInputSchema: z.ZodType<Prisma.MatchMinOrder
   hunter_id: z.lazy(() => SortOrderSchema).optional(),
   status: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.lazy(() => SortOrderSchema).optional(),
-  accepted_at: z.lazy(() => SortOrderSchema).optional(),
-  rejected_at: z.lazy(() => SortOrderSchema).optional()
+  resolved_at: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const MatchSumOrderByAggregateInputSchema: z.ZodType<Prisma.MatchSumOrderByAggregateInput> = z.object({
@@ -1563,6 +1553,16 @@ export const MatchSumOrderByAggregateInputSchema: z.ZodType<Prisma.MatchSumOrder
   bug_report_id: z.lazy(() => SortOrderSchema).optional(),
   helper_id: z.lazy(() => SortOrderSchema).optional(),
   hunter_id: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const EnumMatchStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumMatchStatusWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => MatchStatusSchema).optional(),
+  in: z.lazy(() => MatchStatusSchema).array().optional(),
+  notIn: z.lazy(() => MatchStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => NestedEnumMatchStatusWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumMatchStatusFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumMatchStatusFilterSchema).optional()
 }).strict();
 
 export const UserReviewCountOrderByAggregateInputSchema: z.ZodType<Prisma.UserReviewCountOrderByAggregateInput> = z.object({
@@ -1839,6 +1839,10 @@ export const ChatUncheckedCreateNestedManyWithoutMatchInputSchema: z.ZodType<Pri
   connectOrCreate: z.union([ z.lazy(() => ChatCreateOrConnectWithoutMatchInputSchema),z.lazy(() => ChatCreateOrConnectWithoutMatchInputSchema).array() ]).optional(),
   createMany: z.lazy(() => ChatCreateManyMatchInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => ChatWhereUniqueInputSchema),z.lazy(() => ChatWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const EnumMatchStatusFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumMatchStatusFieldUpdateOperationsInput> = z.object({
+  set: z.lazy(() => MatchStatusSchema).optional()
 }).strict();
 
 export const ChatUpdateManyWithoutMatchNestedInputSchema: z.ZodType<Prisma.ChatUpdateManyWithoutMatchNestedInput> = z.object({
@@ -2273,6 +2277,23 @@ export const NestedFloatNullableFilterSchema: z.ZodType<Prisma.NestedFloatNullab
   not: z.union([ z.number(),z.lazy(() => NestedFloatNullableFilterSchema) ]).optional().nullable(),
 }).strict();
 
+export const NestedEnumMatchStatusFilterSchema: z.ZodType<Prisma.NestedEnumMatchStatusFilter> = z.object({
+  equals: z.lazy(() => MatchStatusSchema).optional(),
+  in: z.lazy(() => MatchStatusSchema).array().optional(),
+  notIn: z.lazy(() => MatchStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => NestedEnumMatchStatusFilterSchema) ]).optional(),
+}).strict();
+
+export const NestedEnumMatchStatusWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumMatchStatusWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => MatchStatusSchema).optional(),
+  in: z.lazy(() => MatchStatusSchema).array().optional(),
+  notIn: z.lazy(() => MatchStatusSchema).array().optional(),
+  not: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => NestedEnumMatchStatusWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumMatchStatusFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumMatchStatusFilterSchema).optional()
+}).strict();
+
 export const UserCreateWithoutBug_reportsInputSchema: z.ZodType<Prisma.UserCreateWithoutBug_reportsInput> = z.object({
   kakao_id: z.string(),
   name: z.string().optional().nullable(),
@@ -2318,10 +2339,9 @@ export const UserCreateOrConnectWithoutBug_reportsInputSchema: z.ZodType<Prisma.
 }).strict();
 
 export const MatchCreateWithoutBug_reportInputSchema: z.ZodType<Prisma.MatchCreateWithoutBug_reportInput> = z.object({
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable(),
+  resolved_at: z.coerce.date().optional().nullable(),
   chats: z.lazy(() => ChatCreateNestedManyWithoutMatchInputSchema).optional(),
   helper: z.lazy(() => UserCreateNestedOneWithoutHelper_matchesInputSchema),
   hunter: z.lazy(() => UserCreateNestedOneWithoutHunter_matchesInputSchema)
@@ -2331,10 +2351,9 @@ export const MatchUncheckedCreateWithoutBug_reportInputSchema: z.ZodType<Prisma.
   id: z.number().int().optional(),
   helper_id: z.number().int(),
   hunter_id: z.number().int(),
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable(),
+  resolved_at: z.coerce.date().optional().nullable(),
   chats: z.lazy(() => ChatUncheckedCreateNestedManyWithoutMatchInputSchema).optional()
 }).strict();
 
@@ -2422,17 +2441,15 @@ export const MatchScalarWhereInputSchema: z.ZodType<Prisma.MatchScalarWhereInput
   bug_report_id: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
   helper_id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
   hunter_id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
-  status: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => EnumMatchStatusFilterSchema),z.lazy(() => MatchStatusSchema) ]).optional(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
-  accepted_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
-  rejected_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  resolved_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
 }).strict();
 
 export const MatchCreateWithoutChatsInputSchema: z.ZodType<Prisma.MatchCreateWithoutChatsInput> = z.object({
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable(),
+  resolved_at: z.coerce.date().optional().nullable(),
   bug_report: z.lazy(() => BugReportCreateNestedOneWithoutMatchesInputSchema).optional(),
   helper: z.lazy(() => UserCreateNestedOneWithoutHelper_matchesInputSchema),
   hunter: z.lazy(() => UserCreateNestedOneWithoutHunter_matchesInputSchema)
@@ -2443,10 +2460,9 @@ export const MatchUncheckedCreateWithoutChatsInputSchema: z.ZodType<Prisma.Match
   bug_report_id: z.number().int().optional().nullable(),
   helper_id: z.number().int(),
   hunter_id: z.number().int(),
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable()
+  resolved_at: z.coerce.date().optional().nullable()
 }).strict();
 
 export const MatchCreateOrConnectWithoutChatsInputSchema: z.ZodType<Prisma.MatchCreateOrConnectWithoutChatsInput> = z.object({
@@ -2466,10 +2482,9 @@ export const MatchUpdateToOneWithWhereWithoutChatsInputSchema: z.ZodType<Prisma.
 }).strict();
 
 export const MatchUpdateWithoutChatsInputSchema: z.ZodType<Prisma.MatchUpdateWithoutChatsInput> = z.object({
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_report: z.lazy(() => BugReportUpdateOneWithoutMatchesNestedInputSchema).optional(),
   helper: z.lazy(() => UserUpdateOneRequiredWithoutHelper_matchesNestedInputSchema).optional(),
   hunter: z.lazy(() => UserUpdateOneRequiredWithoutHunter_matchesNestedInputSchema).optional()
@@ -2480,10 +2495,9 @@ export const MatchUncheckedUpdateWithoutChatsInputSchema: z.ZodType<Prisma.Match
   bug_report_id: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   helper_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   hunter_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const ChatCreateWithoutMatchInputSchema: z.ZodType<Prisma.ChatCreateWithoutMatchInput> = z.object({
@@ -2938,10 +2952,9 @@ export const BugReportCreateManyUserInputEnvelopeSchema: z.ZodType<Prisma.BugRep
 }).strict();
 
 export const MatchCreateWithoutHelperInputSchema: z.ZodType<Prisma.MatchCreateWithoutHelperInput> = z.object({
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable(),
+  resolved_at: z.coerce.date().optional().nullable(),
   chats: z.lazy(() => ChatCreateNestedManyWithoutMatchInputSchema).optional(),
   bug_report: z.lazy(() => BugReportCreateNestedOneWithoutMatchesInputSchema).optional(),
   hunter: z.lazy(() => UserCreateNestedOneWithoutHunter_matchesInputSchema)
@@ -2951,10 +2964,9 @@ export const MatchUncheckedCreateWithoutHelperInputSchema: z.ZodType<Prisma.Matc
   id: z.number().int().optional(),
   bug_report_id: z.number().int().optional().nullable(),
   hunter_id: z.number().int(),
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable(),
+  resolved_at: z.coerce.date().optional().nullable(),
   chats: z.lazy(() => ChatUncheckedCreateNestedManyWithoutMatchInputSchema).optional()
 }).strict();
 
@@ -2969,10 +2981,9 @@ export const MatchCreateManyHelperInputEnvelopeSchema: z.ZodType<Prisma.MatchCre
 }).strict();
 
 export const MatchCreateWithoutHunterInputSchema: z.ZodType<Prisma.MatchCreateWithoutHunterInput> = z.object({
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable(),
+  resolved_at: z.coerce.date().optional().nullable(),
   chats: z.lazy(() => ChatCreateNestedManyWithoutMatchInputSchema).optional(),
   bug_report: z.lazy(() => BugReportCreateNestedOneWithoutMatchesInputSchema).optional(),
   helper: z.lazy(() => UserCreateNestedOneWithoutHelper_matchesInputSchema)
@@ -2982,10 +2993,9 @@ export const MatchUncheckedCreateWithoutHunterInputSchema: z.ZodType<Prisma.Matc
   id: z.number().int().optional(),
   bug_report_id: z.number().int().optional().nullable(),
   helper_id: z.number().int(),
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable(),
+  resolved_at: z.coerce.date().optional().nullable(),
   chats: z.lazy(() => ChatUncheckedCreateNestedManyWithoutMatchInputSchema).optional()
 }).strict();
 
@@ -3129,17 +3139,15 @@ export const MatchCreateManyBug_reportInputSchema: z.ZodType<Prisma.MatchCreateM
   id: z.number().int().optional(),
   helper_id: z.number().int(),
   hunter_id: z.number().int(),
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable()
+  resolved_at: z.coerce.date().optional().nullable()
 }).strict();
 
 export const MatchUpdateWithoutBug_reportInputSchema: z.ZodType<Prisma.MatchUpdateWithoutBug_reportInput> = z.object({
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   chats: z.lazy(() => ChatUpdateManyWithoutMatchNestedInputSchema).optional(),
   helper: z.lazy(() => UserUpdateOneRequiredWithoutHelper_matchesNestedInputSchema).optional(),
   hunter: z.lazy(() => UserUpdateOneRequiredWithoutHunter_matchesNestedInputSchema).optional()
@@ -3149,10 +3157,9 @@ export const MatchUncheckedUpdateWithoutBug_reportInputSchema: z.ZodType<Prisma.
   id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   helper_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   hunter_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   chats: z.lazy(() => ChatUncheckedUpdateManyWithoutMatchNestedInputSchema).optional()
 }).strict();
 
@@ -3160,10 +3167,9 @@ export const MatchUncheckedUpdateManyWithoutBug_reportInputSchema: z.ZodType<Pri
   id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   helper_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   hunter_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const ChatCreateManyMatchInputSchema: z.ZodType<Prisma.ChatCreateManyMatchInput> = z.object({
@@ -3212,20 +3218,18 @@ export const MatchCreateManyHelperInputSchema: z.ZodType<Prisma.MatchCreateManyH
   id: z.number().int().optional(),
   bug_report_id: z.number().int().optional().nullable(),
   hunter_id: z.number().int(),
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable()
+  resolved_at: z.coerce.date().optional().nullable()
 }).strict();
 
 export const MatchCreateManyHunterInputSchema: z.ZodType<Prisma.MatchCreateManyHunterInput> = z.object({
   id: z.number().int().optional(),
   bug_report_id: z.number().int().optional().nullable(),
   helper_id: z.number().int(),
-  status: z.string().optional().nullable(),
+  status: z.lazy(() => MatchStatusSchema),
   created_at: z.coerce.date().optional().nullable(),
-  accepted_at: z.coerce.date().optional().nullable(),
-  rejected_at: z.coerce.date().optional().nullable()
+  resolved_at: z.coerce.date().optional().nullable()
 }).strict();
 
 export const UserReviewCreateManyUserInputSchema: z.ZodType<Prisma.UserReviewCreateManyUserInput> = z.object({
@@ -3285,10 +3289,9 @@ export const BugReportUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prism
 }).strict();
 
 export const MatchUpdateWithoutHelperInputSchema: z.ZodType<Prisma.MatchUpdateWithoutHelperInput> = z.object({
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   chats: z.lazy(() => ChatUpdateManyWithoutMatchNestedInputSchema).optional(),
   bug_report: z.lazy(() => BugReportUpdateOneWithoutMatchesNestedInputSchema).optional(),
   hunter: z.lazy(() => UserUpdateOneRequiredWithoutHunter_matchesNestedInputSchema).optional()
@@ -3298,10 +3301,9 @@ export const MatchUncheckedUpdateWithoutHelperInputSchema: z.ZodType<Prisma.Matc
   id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   bug_report_id: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   hunter_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   chats: z.lazy(() => ChatUncheckedUpdateManyWithoutMatchNestedInputSchema).optional()
 }).strict();
 
@@ -3309,17 +3311,15 @@ export const MatchUncheckedUpdateManyWithoutHelperInputSchema: z.ZodType<Prisma.
   id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   bug_report_id: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   hunter_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const MatchUpdateWithoutHunterInputSchema: z.ZodType<Prisma.MatchUpdateWithoutHunterInput> = z.object({
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   chats: z.lazy(() => ChatUpdateManyWithoutMatchNestedInputSchema).optional(),
   bug_report: z.lazy(() => BugReportUpdateOneWithoutMatchesNestedInputSchema).optional(),
   helper: z.lazy(() => UserUpdateOneRequiredWithoutHelper_matchesNestedInputSchema).optional()
@@ -3329,10 +3329,9 @@ export const MatchUncheckedUpdateWithoutHunterInputSchema: z.ZodType<Prisma.Matc
   id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   bug_report_id: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   helper_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   chats: z.lazy(() => ChatUncheckedUpdateManyWithoutMatchNestedInputSchema).optional()
 }).strict();
 
@@ -3340,10 +3339,9 @@ export const MatchUncheckedUpdateManyWithoutHunterInputSchema: z.ZodType<Prisma.
   id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   bug_report_id: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   helper_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  status: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => MatchStatusSchema),z.lazy(() => EnumMatchStatusFieldUpdateOperationsInputSchema) ]).optional(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  accepted_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  rejected_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  resolved_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserReviewUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserReviewUpdateWithoutUserInput> = z.object({
