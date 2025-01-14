@@ -28,7 +28,7 @@ export const getBugReportList = async (req: Request<GetBugReportListRequestBody>
 
     res.status(StatusCodes.OK).json(bugReports);
   } catch (error) {
-    console.error('Error fetching bugReport reports:', error);
+    console.error('Error fetching bug reports:', error);
     return sendError(res, '버그 리포트를 가져오는 중 오류가 발생했습니다..');
   }
 };
@@ -56,7 +56,7 @@ export const getBugReportDetail = async (
 
     res.status(StatusCodes.OK).json(bugReportDetail);
   } catch (error) {
-    console.error('Error fetching bugReport report details:', error);
+    console.error('Error fetching bug report details:', error);
     return sendError(res, '버그 리포트 상세 정보를 가져오는 중 오류가 발생했습니다.',500);
   }
 };
