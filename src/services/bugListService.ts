@@ -1,6 +1,7 @@
 import prisma from '@/utils/database';
 import { Prisma } from '@prisma/client';
 import { GetBugReportsResponse, ProcessedBugReport,GetBugReportDetailsResponse } from '@/dto/reportDto';
+// @ts-ignore
 import { differenceInMinutes, format } from 'date-fns';
 
 //벌레 리포트 리스트 전체 조회 로직
