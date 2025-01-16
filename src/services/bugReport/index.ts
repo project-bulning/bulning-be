@@ -1,10 +1,16 @@
+import {
+  CreateBugReportRequestBody,
+  GetBugReportDetailsResponse,
+  GetBugReportsResponse,
+  ProcessedBugReport,
+} from '@/dto/reportDto';
+import { Prisma, type User } from '@prisma/client';
 import prisma from '@/utils/database';
-import { Prisma } from '@prisma/client';
-import { GetBugReportsResponse, ProcessedBugReport,GetBugReportDetailsResponse } from '@/dto/reportDto';
 // @ts-ignore
 import { differenceInMinutes, format } from 'date-fns';
+import { isValidS3Url } from '@/utils/upload';
+import { BugReportCreateInputSchema } from '../../../prisma/generated/zod';
 
-//벌레 리포트 리스트 전체 조회 로직
 export const getAllBugReports = async (
   currentLatitude: number,
   currentLongitude: number
@@ -91,9 +97,29 @@ const userLocationMap = users.reduce((map, user) => {
 
 
 // 게시물 상세 정보 조회 로직
-export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsResponse | null> => {
-    const bugReportDetail = await prisma.bugReport.findUnique({
-      where: { id },
-    });
-    return bugReportDetail;
+export const fetchPostDetail = (id: number): Promise<GetBugReportDetailsResponse | null> => {
+  return prisma.bugReport.findUnique({
+    where: {id},
+  });
+};
+
+export const createBugReport = (data: CreateBugReportRequestBody, user: User) => {
+  if(data.bug_image_url && ! isValidS3Url(data.bug_image_url)) {
+    throw new Error('올바르지 않은 이미지 URL입니다.');
+  }
+  if(data.price < 0) {
+    throw new Error('값이 0보다 작을 수 없습니다.');
+  }
+  const creationInput = {
+    ...data,
+    user: {
+      connect: {
+        id: user.id,
+      }
+    },
+  }
+  BugReportCreateInputSchema.parse(creationInput);
+  return prisma.bugReport.create({
+    data: creationInput,
+  });
 };
