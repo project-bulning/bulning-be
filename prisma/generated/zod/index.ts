@@ -31,12 +31,15 @@ export const BugReportStatusSchema = z.enum(['WAITING_MATCH','PENDING','COMPLETE
 export type BugReportStatusType = `${z.infer<typeof BugReportStatusSchema>}`
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export const MatchStatusSchema = z.enum(['MATCH_ACCEPTED','PENDING','MATCH_REJECTED']);
 
 export type MatchStatusType = `${z.infer<typeof MatchStatusSchema>}`
 
 =======
 >>>>>>> 2697044 (Chore: firebase 초기 설정정)
+=======
+>>>>>>> 6e0d9b0227b42695c10af6c695a31e352219ece3
 /////////////////////////////////////////
 // MODELS
 /////////////////////////////////////////

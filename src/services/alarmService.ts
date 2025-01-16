@@ -1,6 +1,8 @@
 import prisma from '@/utils/database';
 import type { User } from '@prisma/client';
 import { messaging } from '@/utils/firbase';
+import { HunterInfoResponse } from '@/dto/userDto';
+import { UserReviewResponse } from '@/dto/userReviewDto';
 
 export const registerTokenService = async (fcmToken: string, user: User) => {
     try {
@@ -35,8 +37,10 @@ export const sendAlarmService = async (reportId: number, user: User) => {
     const message = {
       notification: {
         title: "헌터의 지원",
-        body: `${user.name}님이 사냥을 지원하셨습니다 수락하시겠습니까?`,
-      },
+        body: JSON.stringify({
+          user: `${user.id}`,
+          message: `${user.name}님이 사냥을 지원하셨습니다. 수락하시겠습니까?`,
+        })},
       token: bugReport.user.fcm_token,
     };
 
@@ -49,3 +53,47 @@ export const sendAlarmService = async (reportId: number, user: User) => {
     throw new Error("알림 전송 중 오류가 발생했습니다");
   }
 };
+
+//헌터 정보 보내기기
+export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoResponse | null> => {
+  
+  //ID로 헌터 찾기기
+  const hunter = await prisma.user.findUnique({
+    where: { id: hunterId },
+    include: {
+      user_reviews: true,
+    },
+  });
+
+  if (!hunter) {
+    throw new Error("해당 ID의 헌터 정보를 찾을 수 없습니다.");
+  }
+
+  //리뷰, 평균평점 계산
+  const userReviews = hunter.user_reviews;
+  const avgScore = userReviews.length > 0
+    ? userReviews.reduce((sum, review) => sum + (review.score || 0), 0) / userReviews.length
+    : 0;
+
+
+  //반환할 리뷰 리스트
+  const userReviewsResponse: UserReviewResponse[] = userReviews.map((review) => ({
+    score: review.score || 0,
+    review_note: review.review_note || '',
+    created_at: review.created_at || new Date(),
+  }));
+
+
+  //응답
+  const response: HunterInfoResponse = {
+    name: hunter.name || '',
+    location: hunter.location || '',
+    gender: hunter.gender || '',
+    age_group: hunter.age_group || '',
+    avg_score: avgScore,
+    user_reviews_count: userReviews.length,
+    user_reviews: userReviewsResponse,
+  };
+
+  return response;
+}

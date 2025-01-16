@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { sendError } from '@/utils/response';
 import { AuthenticatedRequest } from '@/types/express';
 import { StatusCodes } from 'http-status-codes';
-import { registerTokenService, sendAlarmService } from '@/services/alarmService';
+import { hunterInfoService, registerTokenService, sendAlarmService } from '@/services/alarmService';
+import { HunterInfoResponse } from '@/dto/userDto';
 
 
 export const registerTokenController = async (
@@ -46,3 +47,23 @@ export const sendAlarmController = async (
     return sendError(res, '알람 전송 중 오류가 발생했습니다.',500); 
   }
 };
+
+export const hunterInfoController = async(
+  req: AuthenticatedRequest<{hunterId:string},{}>, 
+  res: Response<HunterInfoResponse>
+) => {
+  if(! req.user) {
+    return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
+  }
+  const hunterId = req.params;
+  if (!hunterId || isNaN(Number(hunterId))){
+    return sendError(res, '유효한 hunter ID가 필요합니다.');
+  }
+
+  const hunterInfo = await hunterInfoService(Number(hunterId));
+  if (!hunterInfo) {
+    return sendError(res, '해당 ID의 헌터 정보를 찾을 수 없습니다.');
+  }
+  res.status(StatusCodes.OK).json(hunterInfo);
+
+}
