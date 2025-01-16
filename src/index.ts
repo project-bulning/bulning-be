@@ -12,6 +12,7 @@ import { sendError } from '@/utils/response';
 import { StatusCodes } from 'http-status-codes';
 import { matchRoute } from '@/routes/match';
 import { alarmRoute } from './routes/alarmRoute';
+import { userReviewRoute } from './routes/userReviewRoute';
 
 const app = express();
 const DEV_PORT = 3000;
@@ -37,6 +38,7 @@ app.use(API_PREFIX, bugListRoute);
 app.use(API_PREFIX, userRoute);
 app.use(API_PREFIX, matchRoute);
 app.use(API_PREFIX, alarmRoute);
+app.use(API_PREFIX, userReviewRoute);
 
 app.get('*', (req: Request, res: Response) => {
   if (req.path.startsWith('/api')) {
