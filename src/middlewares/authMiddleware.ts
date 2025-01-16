@@ -32,7 +32,6 @@ export const authenticateToken = async (
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as ExtendedJWTPayload | string;
-    console.log(decoded);
 
     if (typeof decoded !== 'object' || !decoded.id) {
       sendError(res, '토큰 구조가 올바르지 않습니다.', StatusCodes.UNAUTHORIZED);
