@@ -16,15 +16,26 @@ import {
 } from '@/services/bugReport';
 
 // 사냥 리스트 조회
-export const getBugReportList = async (req: Request<GetBugReportListRequestBody>, res: Response<GetBugReportsResponse>)=>{
+export const getBugReportList = async (
+  req: Request<{}, {}, {}, { currentLatitude?: string; currentLongitude?: string }>, 
+  res: Response<GetBugReportsResponse>
+)=>{
   try {
-    const { currentLatitude, currentLongitude } = req.body;
+    const { currentLatitude, currentLongitude } = req.query;
 
-    if (typeof currentLatitude !== 'number' || typeof currentLongitude !== 'number') {
-      return sendError(res, '현재 위도와 경도를 숫자 형태로 제공해야 합니다.');
+    // 쿼리 파라미터 검증 및 변환
+    if (!currentLatitude || !currentLongitude) {
+      return sendError(res, '현재 위도와 경도를 쿼리 파라미터로 제공해야 합니다.');
     }
 
-    const bugReports = await getAllBugReports(currentLatitude, currentLongitude);
+    const latitude = parseFloat(currentLatitude);
+    const longitude = parseFloat(currentLongitude);
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      return sendError(res, '위도와 경도는 숫자여야 합니다.');
+    }
+    
+    const bugReports = await getAllBugReports(latitude, longitude);
 
     res.status(StatusCodes.OK).json(bugReports);
   } catch (error) {
