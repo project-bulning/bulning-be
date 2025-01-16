@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import type { Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 import type { AuthenticatedRequest } from '@/types/express';
 import prisma from '@/utils/database';
 import { User } from '@prisma/client';
@@ -14,7 +14,7 @@ export const authenticateToken = async (
 ) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || typeof authHeader !== 'string') {
+  if (!authHeader) {
     sendError(res, ReasonPhrases.UNAUTHORIZED, StatusCodes.UNAUTHORIZED);
     return;
   }
@@ -35,7 +35,7 @@ export const authenticateToken = async (
     console.log(decoded);
 
     if (typeof decoded !== 'object' || !decoded.id) {
-      res.status(401).json({message: 'Invalid token payload'});
+      sendError(res, '토큰 구조가 올바르지 않습니다.', StatusCodes.UNAUTHORIZED);
       return;
     }
 
@@ -47,7 +47,7 @@ export const authenticateToken = async (
     next();
   } catch (error) {
     console.error('Token verification failed:', error);
-    res.status(401).json({message: 'Invalid or expired token'});
+    sendError(res, '토큰 검증에 실패했습니다.', StatusCodes.UNAUTHORIZED);
     return;
   }
 };
