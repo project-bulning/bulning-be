@@ -13,10 +13,12 @@ export const getAllBugReports = async (
   const selectQuery: Prisma.Sql = Prisma.sql`
     SELECT
       id,
+      title,
       created_at,
       status,
       bug_image_url,
       price,
+      user_id,
       ST_DISTANCE_SPHERE(
         POINT(longitude,latitude),
         POINT(${currentLongitude},${currentLatitude})
@@ -26,8 +28,25 @@ export const getAllBugReports = async (
   `;
 
   const reports = await prisma.$queryRaw<
-    (ProcessedBugReport & { distance: number, price: number })[]
+    (ProcessedBugReport & { distance: number, price: number, user_id:number })[]
   >(selectQuery as Prisma.Sql);
+
+  //위치
+  const userIds = reports.map((report) => report.user_id);
+  const users = await prisma.user.findMany({
+  where: {
+    id: { in: userIds },
+  },
+  select: {
+    id: true,
+    location: true,
+  },
+});
+
+const userLocationMap = users.reduce((map, user) => {
+  map[user.id] = user.location || "알 수 없음";
+  return map;
+}, {} as Record<number, string>);
 
 
   //현재 시간 기준으로 몇 분 전인지
@@ -35,15 +54,17 @@ export const getAllBugReports = async (
 
   const processedReports: ProcessedBugReport[] = reports.map((report) => {
     //생성 시간이 null일 경우 처리
-    if (!report.created_at) {
-      return {
-        id: report.id,
-        created_at: '알 수 없음',
-        status: report.status || 'UNKNOWN',
-        bug_image_url: report.bug_image_url,
-        price: report.price,
-      };
-    }
+    // if (!report.created_at) {
+    //   return {
+    //     id: report.id,
+    //     title: report.title || 'UNKNOWN',
+    //     created_at: '알 수 없음',
+    //     status: report.status || 'UNKNOWN',
+    //     bug_image_url: report.bug_image_url,
+    //     price: report.price,
+    //     location: userLocationMap[report.user_id] || "알 수 없음",
+    //   };
+    // }
     //현재 시간과 생성 시간 차이
     const minutesDiff = differenceInMinutes(now, new Date(report.created_at));
 
@@ -56,10 +77,12 @@ export const getAllBugReports = async (
 
     return {
       id: report.id,
+      title: report.title,
       created_at: createdAtLabel,
       status: report.status || 'UNKNOWN',
       bug_image_url: report.bug_image_url,
       price: report.price,
+      location: userLocationMap[report.user_id] || "알 수 없음",
     };
   });
 
