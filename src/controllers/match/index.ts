@@ -2,8 +2,8 @@ import { Response } from 'express';
 import { AuthenticatedRequest } from '@/types/express';
 import { MatchAcceptBody, MatchAcceptParams } from '@/dto/matchDto';
 import { sendError } from '@/utils/response';
-import prisma from '@/utils/database';
 import { StatusCodes } from 'http-status-codes';
+import { setMatchStatus } from '@/services/match';
 
 export const modifyMatch = async(req: AuthenticatedRequest<MatchAcceptParams, MatchAcceptBody>, res: Response) => {
   if(! req.user) {
@@ -14,15 +14,7 @@ export const modifyMatch = async(req: AuthenticatedRequest<MatchAcceptParams, Ma
   }
   const accept = req.body.accept;
   try {
-    await prisma.match.update({
-      data: {
-        status: accept ? 'MATCH_ACCEPTED' : 'MATCH_REJECTED',
-        resolved_at: new Date(),
-      },
-      where: {
-        id: req.params.matchId,
-      }
-    });
+    await setMatchStatus(req.params.matchId, accept);
     res.status(StatusCodes.ACCEPTED);
   } catch(e) {
     console.error(e);
