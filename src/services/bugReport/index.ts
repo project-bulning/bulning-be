@@ -77,6 +77,7 @@ const userLocationMap = users.reduce((map, user) => {
       bug_image_url: report.bug_image_url,
       price: report.price,
       location: userLocationMap[report.user_id] || "알 수 없음",
+      distance: report.distance,
     };
   });
 
@@ -100,7 +101,7 @@ export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsRe
     }
 
     // 필요한 정보만 추출하여 반환
-    const { user,created_at,user_id, ...bugReportDetails } = bugReport;
+    const { user,created_at,user_id, latitude, longitude, ...bugReportDetails } = bugReport;
 
     // 현재 시간 기준
     const now = new Date();
@@ -114,9 +115,20 @@ export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsRe
       createdAtLabel = format(new Date(bugReport.created_at || 0), 'yyyy-MM-dd HH:mm:ss');
     }
 
+    // 위도와 경도에 소숫점 다섯 번째 자리에서 랜덤값 추가
+    const addNoiseToCoordinate = (coordinate: number): number => {
+    const noise = (Math.random() - 0.5) * 0.00002; // -0.00001 ~ 0.00001 사이의 랜덤값을 생성
+    return parseFloat((coordinate + noise).toFixed(5)); // 소숫점 다섯 번째 자리로 반올림
+    };
+
+  const noisyLatitude = addNoiseToCoordinate(bugReport.latitude);
+  const noisyLongitude = addNoiseToCoordinate(bugReport.longitude);
+
     // 반환할 객체 구성
     return {
       ...bugReportDetails,
+      latitude: noisyLatitude,
+      longitude: noisyLongitude,
       name: user?.name || '',
       location: user?.location || '',
       created_at: createdAtLabel,

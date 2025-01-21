@@ -6,7 +6,7 @@ export type CreateBugReportResponse = {
 }
 
 export type ProcessedBugReport = Pick<BugReport, 'id' | 'title' | 'status' | 'bug_image_url' | 'price'>
-& { location: string} & { created_at: Date | string};
+& { location: string} & { created_at: Date | string} &{ distance: number};
 export type GetBugReportsResponse = {
     bug_reports: ProcessedBugReport[];
 }
