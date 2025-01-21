@@ -54,7 +54,7 @@ export const sendAlarmService = async (reportId: number, user: User) => {
   }
 };
 
-//헌터 정보 보내기기
+//헌터 정보 보내기
 export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoResponse | null> => {
   
   //ID로 헌터 찾기기
@@ -93,6 +93,7 @@ export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoRe
     avg_score: avgScore,
     user_reviews_count: userReviews.length,
     user_reviews: userReviewsResponse,
+    pr_memo : hunter.pr_memo || ''
   };
 
   return response;

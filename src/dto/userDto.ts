@@ -23,4 +23,5 @@ export interface HunterInfoResponse {
     avg_score: number;
     user_reviews_count: number;
     user_reviews: UserReviewResponse[];
+    pr_memo: string;
 }
