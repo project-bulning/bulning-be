@@ -12,6 +12,9 @@ import { matchRoute } from '@/routes/match';
 import { alarmRoute } from './routes/alarmRoute';
 import { userReviewRoute } from './routes/userReviewRoute';
 import { bugReportRoute } from '@/routes/bugReport';
+import { WebSocketServer } from 'ws';
+import { handleSocketConnection } from '@/socket';
+import * as http from 'node:http';
 
 const app = express();
 const DEV_PORT = 3000;
@@ -58,8 +61,13 @@ if(process.env.NODE_ENV === 'production') {
   };
   const server = https.createServer(securityConfig, app);
   server.listen(PRODUCTION_PORT, () => `Server is running on ${process.env.BASE_URL}:${PRODUCTION_PORT}`);
+  const wss = new WebSocketServer({ server });
+  wss.on('connection', handleSocketConnection);
 } else {
-  app.listen(DEV_PORT, () => {
+  const server = http.createServer(app);
+  server.listen(DEV_PORT, () => {
     console.log(`Server is running on http://localhost:${DEV_PORT}`);
   });
+  const ws = new WebSocketServer({ server });
+  ws.on('connection', handleSocketConnection);
 }

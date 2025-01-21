@@ -1,5 +1,7 @@
 import admin from "firebase-admin";
-import * as serviceAccount from "@/config/firebase-serviceAccountKey.json" // 서비스 계정 키 파일 경로
+import * as fs from 'fs';
+
+const serviceAccount = JSON.parse(fs.readFileSync('firebase-serviceAccountKey.json').toString());
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
