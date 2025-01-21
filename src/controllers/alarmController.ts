@@ -55,7 +55,7 @@ export const hunterInfoController = async(
   if(! req.user) {
     return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
   }
-  const hunterId = req.params;
+  const {hunterId} = req.params;
   if (!hunterId || isNaN(Number(hunterId))){
     return sendError(res, '유효한 hunter ID가 필요합니다.');
   }

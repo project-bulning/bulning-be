@@ -14,7 +14,7 @@ export const hunterReviewController = async (
     return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
   }
 
-  const matchId = req.params;
+  const {matchId} = req.params;
   if (!matchId || isNaN(Number(matchId))){
     return sendError(res, '유효한 match ID가 필요합니다.');
   }
