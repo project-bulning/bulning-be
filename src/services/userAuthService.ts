@@ -69,3 +69,25 @@ export const handleUserInfoInput =  async (data: RegistrationRequestBody, user: 
     },
   });
 };
+
+//signoutUser
+export const signoutUser = async (user: User): Promise<void> => {
+  const userId = user.id;
+
+  // 사용자가 만든 벌레리포트 삭제
+  await prisma.bugReport.deleteMany({
+    where: { user_id: userId },
+  });
+
+  // 사용자의 리뷰 삭제
+  await prisma.userReview.deleteMany({
+    where: { user_id: userId },
+  });
+
+  // 헬퍼/헌터 매치 삭제? 
+
+  // 사용자를 DB에서 삭제
+  await prisma.user.delete({
+    where: { id: userId },
+  });
+};
