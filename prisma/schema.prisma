@@ -44,6 +44,7 @@ model Chat {
   created_at DateTime?  @default(now()) @db.Timestamp(0)
   issuer_id  Int
   target_id  Int
+  content    String     @db.VarChar(255)
   match      Match?     @relation(fields: [match_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chats_match_fk")
   issuer     User       @relation("User_Chat_Issued", fields: [issuer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chats_issuer_fk")
   target     User       @relation("User_Chat_Received", fields: [target_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chats_target_fk")
@@ -78,6 +79,7 @@ enum MatchStatus {
   MATCH_ACCEPTED
   PENDING
   MATCH_REJECTED
+  MATCH_CLOSED
 }
 
 model UserReview {
