@@ -70,7 +70,22 @@ export const handleUserInfoInput =  async (data: RegistrationRequestBody, user: 
   });
 };
 
-//signoutUser
+// 회원 정보 수정
+export const updateUserInfo = async (user: User, updatedData: Partial<User>): Promise<User> => {
+
+  // 수정할 항목에 대해서만 업데이트
+  const updatedUser = await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      ...updatedData, 
+      updated_at: new Date(),
+    },
+  });
+
+  return updatedUser;
+};
+
+//사용자 탈퇴
 export const signoutUser = async (user: User): Promise<void> => {
   const userId = user.id;
 
