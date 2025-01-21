@@ -1,17 +1,19 @@
 import { z } from 'zod';
+import type { Chat } from '@prisma/client';
 
-type SocketMessageType = 'read' | 'write';
+type SocketMessageType = 'read' | 'write' | 'close';
 export interface SocketMessage {
   message_type: SocketMessageType;
 }
-export interface ReadChatRequest {
+export interface ReadChatRequest extends SocketMessage { // 클라이언트 -> 서버
 }
-export interface WriteChatRequest {
+export interface WriteChatRequest extends SocketMessage { // 클라이언트 -> 서버
   content: string;
-  match_id: number;
 }
+export type MessageBody = Chat // 서버 -> 클라이언트
 
 export const WriteChatRequestSchema = z.object({
-  content: z.string().max(200),
-  match_id: z.number(),
+  content: z.string().max(255),
 });
+export interface CloseChatRequest extends SocketMessage {
+}

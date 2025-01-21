@@ -6,9 +6,8 @@ import { ExtendedJWTPayload } from '@/dto/authDto';
 import prisma from '@/utils/database';
 import { User } from '@prisma/client';
 import { closeSocket } from '@/utils/response';
-import { NetworkSessions } from '@/types/websocket';
+import Session from '@/socket/session/Session';
 
-const networkSessions: NetworkSessions = {};
 export const handleSocketConnection = async(ws: WebSocket, req: http.IncomingMessage) => {
   const token = req.url?.split('?token=')[1];
   if(! token) {
@@ -32,18 +31,8 @@ export const handleSocketConnection = async(ws: WebSocket, req: http.IncomingMes
         id: decoded.id,
       },
     }) as User;
-    networkSessions[decoded.id] = ws;
-    ws.on('message', (message) => handleMessage(user, message.toString(), ws))
-  } catch(e) {
-    console.error(e);
-    closeSocket(ws, '에러가 발생했습니다.');
-  }
-}
-
-export const handleMessage = (user: User, message: string, ws: WebSocket) => {
-  try {
-    const data = JSON.parse(message);
-    console.log(data);
+    const session = Session.userSessions[decoded.id] = new Session(ws, user);
+    ws.on('message', session.handleRequest.bind(session))
   } catch(e) {
     console.error(e);
     closeSocket(ws, '에러가 발생했습니다.');
