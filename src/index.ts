@@ -1,8 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
 import { kakaoLoginRoute } from './routes/kakaoLoginRoute';
-import { bugPostRoute } from './routes/bugPostRoute';
-import { bugListRoute } from './routes/bugListRoute';
 import { userRoute } from '@/routes/user';
 import cors from 'cors';
 import fs from 'node:fs';
@@ -13,6 +11,7 @@ import { StatusCodes } from 'http-status-codes';
 import { matchRoute } from '@/routes/match';
 import { alarmRoute } from './routes/alarmRoute';
 import { userReviewRoute } from './routes/userReviewRoute';
+import { bugReportRoute } from '@/routes/bugReport';
 
 const app = express();
 const DEV_PORT = 3000;
@@ -33,8 +32,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use(API_PREFIX, kakaoLoginRoute);
-app.use(API_PREFIX, bugPostRoute);
-app.use(API_PREFIX, bugListRoute);
+app.use(API_PREFIX, bugReportRoute);
 app.use(API_PREFIX, userRoute);
 app.use(API_PREFIX, matchRoute);
 app.use(API_PREFIX, alarmRoute);

@@ -1,6 +1,6 @@
 import express from 'express';
-import { kakaoLogin, kakaoCallback, userInfo } from '../controllers/kakaoLoginController';
-import { authenticateToken } from '../middlewares/authMiddleware';
+import { kakaoLogin, kakaoCallback, userInfo } from '@/controllers/kakaoLoginController';
+import { authenticateToken } from '@/middlewares/authMiddleware';
 
 const router = express.Router();
 
