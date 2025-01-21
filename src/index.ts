@@ -9,6 +9,8 @@ import * as path from 'node:path';
 import { sendError } from '@/utils/response';
 import { StatusCodes } from 'http-status-codes';
 import { matchRoute } from '@/routes/match';
+import { alarmRoute } from './routes/alarmRoute';
+import { userReviewRoute } from './routes/userReviewRoute';
 import { bugReportRoute } from '@/routes/bugReport';
 import { WebSocketServer } from 'ws';
 import { handleSocketConnection } from '@/socket';
@@ -36,6 +38,8 @@ app.use(API_PREFIX, kakaoLoginRoute);
 app.use(API_PREFIX, bugReportRoute);
 app.use(API_PREFIX, userRoute);
 app.use(API_PREFIX, matchRoute);
+app.use(API_PREFIX, alarmRoute);
+app.use(API_PREFIX, userReviewRoute);
 
 app.get('*', (req: Request, res: Response) => {
   if (req.path.startsWith('/api')) {

@@ -20,15 +20,11 @@ export const MatchScalarFieldEnumSchema = z.enum(['id','bug_report_id','helper_i
 
 export const UserReviewScalarFieldEnumSchema = z.enum(['id','user_id','role','score','time_taken','price','review_note','created_at']);
 
-export const UserScalarFieldEnumSchema = z.enum(['id','kakao_id','name','phone_number','location','gender','role','hunt_count','age_group','email','password','created_at','updated_at','terms_accepted']);
+export const UserScalarFieldEnumSchema = z.enum(['id','kakao_id','name','phone_number','location','gender','role','hunt_count','age_group','email','password','created_at','updated_at','terms_accepted','fcm_token']);
 
 export const SortOrderSchema = z.enum(['asc','desc']);
 
 export const NullsOrderSchema = z.enum(['first','last']);
-
-export const BugReportStatusSchema = z.enum(['WAITING_MATCH','PENDING','COMPLETED']);
-
-export type BugReportStatusType = `${z.infer<typeof BugReportStatusSchema>}`
 
 export const ChatStatusSchema = z.enum(['READ_COMPLETE','UNREAD']);
 
@@ -37,6 +33,10 @@ export type ChatStatusType = `${z.infer<typeof ChatStatusSchema>}`
 export const MatchStatusSchema = z.enum(['MATCH_ACCEPTED','PENDING','MATCH_REJECTED','MATCH_CLOSED']);
 
 export type MatchStatusType = `${z.infer<typeof MatchStatusSchema>}`
+
+export const BugReportStatusSchema = z.enum(['WAITING_MATCH','PENDING','COMPLETED']);
+
+export type BugReportStatusType = `${z.infer<typeof BugReportStatusSchema>}`
 
 /////////////////////////////////////////
 // MODELS
@@ -132,6 +132,7 @@ export const UserSchema = z.object({
   created_at: z.coerce.date().nullable(),
   updated_at: z.coerce.date().nullable(),
   terms_accepted: z.number().int().nullable(),
+  fcm_token: z.string().nullable(),
 })
 
 export type User = z.infer<typeof UserSchema>
@@ -317,6 +318,7 @@ export const UserSelectSchema: z.ZodType<Prisma.UserSelect> = z.object({
   created_at: z.boolean().optional(),
   updated_at: z.boolean().optional(),
   terms_accepted: z.boolean().optional(),
+  fcm_token: z.boolean().optional(),
   bug_reports: z.union([z.boolean(),z.lazy(() => BugReportFindManyArgsSchema)]).optional(),
   helper_matches: z.union([z.boolean(),z.lazy(() => MatchFindManyArgsSchema)]).optional(),
   hunter_matches: z.union([z.boolean(),z.lazy(() => MatchFindManyArgsSchema)]).optional(),
@@ -682,6 +684,7 @@ export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z.object({
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   updated_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   terms_accepted: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
+  fcm_token: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportListRelationFilterSchema).optional(),
   helper_matches: z.lazy(() => MatchListRelationFilterSchema).optional(),
   hunter_matches: z.lazy(() => MatchListRelationFilterSchema).optional(),
@@ -705,6 +708,7 @@ export const UserOrderByWithRelationInputSchema: z.ZodType<Prisma.UserOrderByWit
   created_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   updated_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   terms_accepted: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  fcm_token: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   bug_reports: z.lazy(() => BugReportOrderByRelationAggregateInputSchema).optional(),
   helper_matches: z.lazy(() => MatchOrderByRelationAggregateInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchOrderByRelationAggregateInputSchema).optional(),
@@ -734,6 +738,7 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   updated_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   terms_accepted: z.union([ z.lazy(() => IntNullableFilterSchema),z.number().int() ]).optional().nullable(),
+  fcm_token: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportListRelationFilterSchema).optional(),
   helper_matches: z.lazy(() => MatchListRelationFilterSchema).optional(),
   hunter_matches: z.lazy(() => MatchListRelationFilterSchema).optional(),
@@ -757,6 +762,7 @@ export const UserOrderByWithAggregationInputSchema: z.ZodType<Prisma.UserOrderBy
   created_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   updated_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   terms_accepted: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  fcm_token: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   _count: z.lazy(() => UserCountOrderByAggregateInputSchema).optional(),
   _avg: z.lazy(() => UserAvgOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => UserMaxOrderByAggregateInputSchema).optional(),
@@ -782,6 +788,7 @@ export const UserScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.UserScal
   created_at: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
   updated_at: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
   terms_accepted: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema),z.number() ]).optional().nullable(),
+  fcm_token: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
 }).strict();
 
 export const BugReportCreateInputSchema: z.ZodType<Prisma.BugReportCreateInput> = z.object({
@@ -1115,6 +1122,7 @@ export const UserCreateInputSchema: z.ZodType<Prisma.UserCreateInput> = z.object
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportCreateNestedManyWithoutUserInputSchema).optional(),
   helper_matches: z.lazy(() => MatchCreateNestedManyWithoutHelperInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchCreateNestedManyWithoutHunterInputSchema).optional(),
@@ -1138,6 +1146,7 @@ export const UserUncheckedCreateInputSchema: z.ZodType<Prisma.UserUncheckedCreat
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHelperInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHunterInputSchema).optional(),
@@ -1160,6 +1169,7 @@ export const UserUpdateInputSchema: z.ZodType<Prisma.UserUpdateInput> = z.object
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUpdateManyWithoutUserNestedInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUpdateManyWithoutHelperNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUpdateManyWithoutHunterNestedInputSchema).optional(),
@@ -1183,6 +1193,7 @@ export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdat
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHelperNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHunterNestedInputSchema).optional(),
@@ -1205,7 +1216,8 @@ export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = 
   password: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
-  terms_accepted: z.number().int().optional().nullable()
+  terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable()
 }).strict();
 
 export const UserUpdateManyMutationInputSchema: z.ZodType<Prisma.UserUpdateManyMutationInput> = z.object({
@@ -1222,6 +1234,7 @@ export const UserUpdateManyMutationInputSchema: z.ZodType<Prisma.UserUpdateManyM
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserUncheckedUpdateManyInput> = z.object({
@@ -1239,6 +1252,7 @@ export const UserUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserUncheckedU
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const IntFilterSchema: z.ZodType<Prisma.IntFilter> = z.object({
@@ -1735,7 +1749,8 @@ export const UserCountOrderByAggregateInputSchema: z.ZodType<Prisma.UserCountOrd
   password: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.lazy(() => SortOrderSchema).optional(),
   updated_at: z.lazy(() => SortOrderSchema).optional(),
-  terms_accepted: z.lazy(() => SortOrderSchema).optional()
+  terms_accepted: z.lazy(() => SortOrderSchema).optional(),
+  fcm_token: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const UserAvgOrderByAggregateInputSchema: z.ZodType<Prisma.UserAvgOrderByAggregateInput> = z.object({
@@ -1758,7 +1773,8 @@ export const UserMaxOrderByAggregateInputSchema: z.ZodType<Prisma.UserMaxOrderBy
   password: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.lazy(() => SortOrderSchema).optional(),
   updated_at: z.lazy(() => SortOrderSchema).optional(),
-  terms_accepted: z.lazy(() => SortOrderSchema).optional()
+  terms_accepted: z.lazy(() => SortOrderSchema).optional(),
+  fcm_token: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const UserMinOrderByAggregateInputSchema: z.ZodType<Prisma.UserMinOrderByAggregateInput> = z.object({
@@ -1775,7 +1791,8 @@ export const UserMinOrderByAggregateInputSchema: z.ZodType<Prisma.UserMinOrderBy
   password: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.lazy(() => SortOrderSchema).optional(),
   updated_at: z.lazy(() => SortOrderSchema).optional(),
-  terms_accepted: z.lazy(() => SortOrderSchema).optional()
+  terms_accepted: z.lazy(() => SortOrderSchema).optional(),
+  fcm_token: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const UserSumOrderByAggregateInputSchema: z.ZodType<Prisma.UserSumOrderByAggregateInput> = z.object({
@@ -2528,6 +2545,7 @@ export const UserCreateWithoutBug_reportsInputSchema: z.ZodType<Prisma.UserCreat
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   helper_matches: z.lazy(() => MatchCreateNestedManyWithoutHelperInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchCreateNestedManyWithoutHunterInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewCreateNestedManyWithoutUserInputSchema).optional(),
@@ -2550,6 +2568,7 @@ export const UserUncheckedCreateWithoutBug_reportsInputSchema: z.ZodType<Prisma.
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   helper_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHelperInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHunterInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
@@ -2616,6 +2635,7 @@ export const UserUpdateWithoutBug_reportsInputSchema: z.ZodType<Prisma.UserUpdat
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   helper_matches: z.lazy(() => MatchUpdateManyWithoutHelperNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUpdateManyWithoutHunterNestedInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -2638,6 +2658,7 @@ export const UserUncheckedUpdateWithoutBug_reportsInputSchema: z.ZodType<Prisma.
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   helper_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHelperNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHunterNestedInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -2712,6 +2733,7 @@ export const UserCreateWithoutIssued_chatsInputSchema: z.ZodType<Prisma.UserCrea
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportCreateNestedManyWithoutUserInputSchema).optional(),
   helper_matches: z.lazy(() => MatchCreateNestedManyWithoutHelperInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchCreateNestedManyWithoutHunterInputSchema).optional(),
@@ -2734,6 +2756,7 @@ export const UserUncheckedCreateWithoutIssued_chatsInputSchema: z.ZodType<Prisma
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHelperInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHunterInputSchema).optional(),
@@ -2760,6 +2783,7 @@ export const UserCreateWithoutReceived_chatsInputSchema: z.ZodType<Prisma.UserCr
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportCreateNestedManyWithoutUserInputSchema).optional(),
   helper_matches: z.lazy(() => MatchCreateNestedManyWithoutHelperInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchCreateNestedManyWithoutHunterInputSchema).optional(),
@@ -2782,6 +2806,7 @@ export const UserUncheckedCreateWithoutReceived_chatsInputSchema: z.ZodType<Pris
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHelperInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHunterInputSchema).optional(),
@@ -2849,6 +2874,7 @@ export const UserUpdateWithoutIssued_chatsInputSchema: z.ZodType<Prisma.UserUpda
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUpdateManyWithoutUserNestedInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUpdateManyWithoutHelperNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUpdateManyWithoutHunterNestedInputSchema).optional(),
@@ -2871,6 +2897,7 @@ export const UserUncheckedUpdateWithoutIssued_chatsInputSchema: z.ZodType<Prisma
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHelperNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHunterNestedInputSchema).optional(),
@@ -2903,6 +2930,7 @@ export const UserUpdateWithoutReceived_chatsInputSchema: z.ZodType<Prisma.UserUp
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUpdateManyWithoutUserNestedInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUpdateManyWithoutHelperNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUpdateManyWithoutHunterNestedInputSchema).optional(),
@@ -2925,6 +2953,7 @@ export const UserUncheckedUpdateWithoutReceived_chatsInputSchema: z.ZodType<Pris
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHelperNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHunterNestedInputSchema).optional(),
@@ -3009,6 +3038,7 @@ export const UserCreateWithoutHelper_matchesInputSchema: z.ZodType<Prisma.UserCr
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportCreateNestedManyWithoutUserInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchCreateNestedManyWithoutHunterInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewCreateNestedManyWithoutUserInputSchema).optional(),
@@ -3031,6 +3061,7 @@ export const UserUncheckedCreateWithoutHelper_matchesInputSchema: z.ZodType<Pris
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHunterInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
@@ -3057,6 +3088,7 @@ export const UserCreateWithoutHunter_matchesInputSchema: z.ZodType<Prisma.UserCr
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportCreateNestedManyWithoutUserInputSchema).optional(),
   helper_matches: z.lazy(() => MatchCreateNestedManyWithoutHelperInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewCreateNestedManyWithoutUserInputSchema).optional(),
@@ -3079,6 +3111,7 @@ export const UserUncheckedCreateWithoutHunter_matchesInputSchema: z.ZodType<Pris
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHelperInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
@@ -3187,6 +3220,7 @@ export const UserUpdateWithoutHelper_matchesInputSchema: z.ZodType<Prisma.UserUp
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUpdateManyWithoutUserNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUpdateManyWithoutHunterNestedInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -3209,6 +3243,7 @@ export const UserUncheckedUpdateWithoutHelper_matchesInputSchema: z.ZodType<Pris
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHunterNestedInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -3241,6 +3276,7 @@ export const UserUpdateWithoutHunter_matchesInputSchema: z.ZodType<Prisma.UserUp
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUpdateManyWithoutUserNestedInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUpdateManyWithoutHelperNestedInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -3263,6 +3299,7 @@ export const UserUncheckedUpdateWithoutHunter_matchesInputSchema: z.ZodType<Pris
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHelperNestedInputSchema).optional(),
   user_reviews: z.lazy(() => UserReviewUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
@@ -3284,6 +3321,7 @@ export const UserCreateWithoutUser_reviewsInputSchema: z.ZodType<Prisma.UserCrea
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportCreateNestedManyWithoutUserInputSchema).optional(),
   helper_matches: z.lazy(() => MatchCreateNestedManyWithoutHelperInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchCreateNestedManyWithoutHunterInputSchema).optional(),
@@ -3306,6 +3344,7 @@ export const UserUncheckedCreateWithoutUser_reviewsInputSchema: z.ZodType<Prisma
   created_at: z.coerce.date().optional().nullable(),
   updated_at: z.coerce.date().optional().nullable(),
   terms_accepted: z.number().int().optional().nullable(),
+  fcm_token: z.string().optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHelperInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedCreateNestedManyWithoutHunterInputSchema).optional(),
@@ -3343,6 +3382,7 @@ export const UserUpdateWithoutUser_reviewsInputSchema: z.ZodType<Prisma.UserUpda
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUpdateManyWithoutUserNestedInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUpdateManyWithoutHelperNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUpdateManyWithoutHunterNestedInputSchema).optional(),
@@ -3365,6 +3405,7 @@ export const UserUncheckedUpdateWithoutUser_reviewsInputSchema: z.ZodType<Prisma
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   updated_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   terms_accepted: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  fcm_token: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bug_reports: z.lazy(() => BugReportUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   helper_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHelperNestedInputSchema).optional(),
   hunter_matches: z.lazy(() => MatchUncheckedUpdateManyWithoutHunterNestedInputSchema).optional(),
