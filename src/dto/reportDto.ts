@@ -11,7 +11,8 @@ export type GetBugReportsResponse = {
     bug_reports: ProcessedBugReport[];
 }
 
-export type GetBugReportDetailsResponse = BugReport;
+export type GetBugReportDetailsResponse = Omit<BugReport, 'id' | 'created_at' | 'user_id'>
+& { name: string} & { location: string} & { created_at: Date | string};
 
 export interface CreateBugImageResponse {
     image_url: string;

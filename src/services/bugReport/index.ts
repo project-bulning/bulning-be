@@ -59,18 +59,6 @@ const userLocationMap = users.reduce((map, user) => {
   const now = new Date();
 
   const processedReports: ProcessedBugReport[] = reports.map((report) => {
-    //생성 시간이 null일 경우 처리
-    // if (!report.created_at) {
-    //   return {
-    //     id: report.id,
-    //     title: report.title || 'UNKNOWN',
-    //     created_at: '알 수 없음',
-    //     status: report.status || 'UNKNOWN',
-    //     bug_image_url: report.bug_image_url,
-    //     price: report.price,
-    //     location: userLocationMap[report.user_id] || "알 수 없음",
-    //   };
-    // }
     //현재 시간과 생성 시간 차이
     const minutesDiff = differenceInMinutes(now, new Date(report.created_at));
 
@@ -97,10 +85,42 @@ const userLocationMap = users.reduce((map, user) => {
 
 
 // 게시물 상세 정보 조회 로직
-export const fetchPostDetail = (id: number): Promise<GetBugReportDetailsResponse | null> => {
-  return prisma.bugReport.findUnique({
-    where: {id},
-  });
+export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsResponse | null> => {
+ 
+    // BugReport 조회
+    const bugReport = await prisma.bugReport.findUnique({
+      where: { id },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!bugReport) {
+      throw new Error('해당 ID의 bugReport는 없습니다.');
+    }
+
+    // 필요한 정보만 추출하여 반환
+    const { user,created_at,user_id, ...bugReportDetails } = bugReport;
+
+    // 현재 시간 기준
+    const now = new Date();
+    // 현재 시간과 생성 시간 차이 계산
+    const minutesDiff = differenceInMinutes(now, new Date(bugReport.created_at || 0));
+
+    let createdAtLabel;
+    if (minutesDiff < 60) {
+      createdAtLabel = `${minutesDiff}분 전`;
+    } else {
+      createdAtLabel = format(new Date(bugReport.created_at || 0), 'yyyy-MM-dd HH:mm:ss');
+    }
+
+    // 반환할 객체 구성
+    return {
+      ...bugReportDetails,
+      name: user?.name || '',
+      location: user?.location || '',
+      created_at: createdAtLabel,
+    };
 };
 
 export const createBugReport = (data: CreateBugReportRequestBody, user: User) => {
