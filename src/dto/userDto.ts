@@ -7,6 +7,7 @@ export interface KaKaoUserDTO {
 
 export interface RegistrationRequestBody {
     userId: string;
+    nickname: string;
     gender: string;
     ageRange: string;
     phoneNumber: string;
