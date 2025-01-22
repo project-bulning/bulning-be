@@ -41,7 +41,7 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-//탈퇴퇴
+//탈퇴
 export const signoutMyInfo = async(req: AuthenticatedRequest, res: Response) => {
   if(! req.user) {
     sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
