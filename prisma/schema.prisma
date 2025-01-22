@@ -48,7 +48,6 @@ model Chat {
   @@index([target_id], map: "chats_target_fk")
 }
 
-
 model Match {
   id            Int         @id @default(autoincrement())
   bug_report_id Int?
@@ -85,6 +84,7 @@ model User {
   id             Int          @id @default(autoincrement())
   kakao_id       String       @db.VarChar(50)
   name           String?      @db.VarChar(255)
+  nickname       String?      @db.VarChar(45)
   phone_number   String?      @db.VarChar(20)
   location       String?      @db.VarChar(255)
   gender         String?      @db.VarChar(50)
