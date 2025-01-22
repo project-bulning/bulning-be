@@ -127,9 +127,9 @@ export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsRe
     // 반환할 객체 구성
     return {
       ...bugReportDetails,
+      nickname: user?.nickname || '',
       latitude: noisyLatitude,
       longitude: noisyLongitude,
-      name: user?.name || '',
       location: user?.location || '',
       created_at: createdAtLabel,
     };
