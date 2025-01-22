@@ -60,11 +60,8 @@ export const handleUserInfoInput =  async (data: RegistrationRequestBody, user: 
   return prisma.user.update({
     where: { id: user.id },
     data: {
-      phone_number: data.phoneNumber,
       location: data.location,
-      gender: data.gender,
-      age_group: data.ageRange,
-      terms_accepted: data.termsAccepted ? 1 : 0, // boolean 값을 DB의 Int로 매핑
+      //terms_accepted: data.termsAccepted ? 1 : 0, // boolean 값을 DB의 Int로 매핑
       nickname: data.nickname,
       updated_at: new Date(),
     },
