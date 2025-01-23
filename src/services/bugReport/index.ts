@@ -130,7 +130,7 @@ export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsRe
   const noisyLatitude = addNoiseToCoordinate(bugReport.latitude);
   const noisyLongitude = addNoiseToCoordinate(bugReport.longitude);
 
-    // 반환할 객체 구성
+    // 반환할 객체
     return {
       ...bugReportDetails,
       nickname: user?.nickname || '',
