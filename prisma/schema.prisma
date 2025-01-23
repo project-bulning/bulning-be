@@ -91,11 +91,8 @@ model User {
   role           String?      @db.VarChar(50)
   hunt_count     Int?
   age_group      String?      @db.VarChar(50)
-  email          String?      @db.VarChar(255)
-  password       String?      @db.VarChar(255)
   created_at     DateTime?    @default(now()) @db.Timestamp(0)
   updated_at     DateTime?    @default(now()) @db.Timestamp(0)
-  terms_accepted Int?         @db.TinyInt
   fcm_token      String?      @db.VarChar(255)
   pr_memo        String?      @db.Text
   bug_reports    BugReport[]
