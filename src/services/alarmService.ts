@@ -80,6 +80,8 @@ export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoRe
   const userReviewsResponse: UserReviewResponse[] = userReviews.map((review) => ({
     score: review.score || 0,
     review_note: review.review_note || '',
+    merit: Array.isArray(review.merit) 
+    ? review.merit.map((item) => String(item)) : [String(review.merit)], 
     created_at: review.created_at || new Date(),
   }));
 
