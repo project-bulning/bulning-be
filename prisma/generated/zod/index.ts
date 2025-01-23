@@ -1,9 +1,53 @@
 import { z } from 'zod';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 /////////////////////////////////////////
 // HELPER FUNCTIONS
 /////////////////////////////////////////
+
+// JSON
+//------------------------------------------------------
+
+export type NullableJsonInput = Prisma.JsonValue | null | 'JsonNull' | 'DbNull' | Prisma.NullTypes.DbNull | Prisma.NullTypes.JsonNull;
+
+export const transformJsonNull = (v?: NullableJsonInput) => {
+  if (!v || v === 'DbNull') return Prisma.DbNull;
+  if (v === 'JsonNull') return Prisma.JsonNull;
+  return v;
+};
+
+export const JsonValueSchema: z.ZodType<Prisma.JsonValue> = z.lazy(() =>
+  z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.literal(null),
+    z.record(z.lazy(() => JsonValueSchema.optional())),
+    z.array(z.lazy(() => JsonValueSchema)),
+  ])
+);
+
+export type JsonValueType = z.infer<typeof JsonValueSchema>;
+
+export const NullableJsonValue = z
+  .union([JsonValueSchema, z.literal('DbNull'), z.literal('JsonNull')])
+  .nullable()
+  .transform((v) => transformJsonNull(v));
+
+export type NullableJsonValueType = z.infer<typeof NullableJsonValue>;
+
+export const InputJsonValueSchema: z.ZodType<Prisma.InputJsonValue> = z.lazy(() =>
+  z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.object({ toJSON: z.function(z.tuple([]), z.any()) }),
+    z.record(z.lazy(() => z.union([InputJsonValueSchema, z.literal(null)]))),
+    z.array(z.lazy(() => z.union([InputJsonValueSchema, z.literal(null)]))),
+  ])
+);
+
+export type InputJsonValueType = z.infer<typeof InputJsonValueSchema>;
 
 
 /////////////////////////////////////////
@@ -18,13 +62,17 @@ export const ChatScalarFieldEnumSchema = z.enum(['id','match_id','status','creat
 
 export const MatchScalarFieldEnumSchema = z.enum(['id','bug_report_id','helper_id','hunter_id','status','created_at','resolved_at']);
 
-export const UserReviewScalarFieldEnumSchema = z.enum(['id','user_id','role','score','time_taken','price','review_note','created_at']);
+export const UserReviewScalarFieldEnumSchema = z.enum(['id','user_id','score','merit','review_note','created_at']);
 
 export const UserScalarFieldEnumSchema = z.enum(['id','kakao_id','name','nickname','phone_number','location','gender','role','hunt_count','age_group','created_at','updated_at','fcm_token','pr_memo']);
 
 export const SortOrderSchema = z.enum(['asc','desc']);
 
+export const NullableJsonNullValueInputSchema = z.enum(['DbNull','JsonNull',]).transform((value) => value === 'JsonNull' ? Prisma.JsonNull : value === 'DbNull' ? Prisma.DbNull : value);
+
 export const NullsOrderSchema = z.enum(['first','last']);
+
+export const JsonNullValueFilterSchema = z.enum(['DbNull','JsonNull','AnyNull',]).transform((value) => value === 'JsonNull' ? Prisma.JsonNull : value === 'DbNull' ? Prisma.JsonNull : value === 'AnyNull' ? Prisma.AnyNull : value);
 
 export const ChatStatusSchema = z.enum(['READ_COMPLETE','UNREAD']);
 
@@ -103,10 +151,8 @@ export type Match = z.infer<typeof MatchSchema>
 export const UserReviewSchema = z.object({
   id: z.number().int(),
   user_id: z.number().int(),
-  role: z.string().nullable(),
   score: z.number().int().nullable(),
-  time_taken: z.number().int().nullable(),
-  price: z.number().int().nullable(),
+  merit: JsonValueSchema.nullable(),
   review_note: z.string().nullable(),
   created_at: z.coerce.date().nullable(),
 })
@@ -262,10 +308,8 @@ export const UserReviewArgsSchema: z.ZodType<Prisma.UserReviewDefaultArgs> = z.o
 export const UserReviewSelectSchema: z.ZodType<Prisma.UserReviewSelect> = z.object({
   id: z.boolean().optional(),
   user_id: z.boolean().optional(),
-  role: z.boolean().optional(),
   score: z.boolean().optional(),
-  time_taken: z.boolean().optional(),
-  price: z.boolean().optional(),
+  merit: z.boolean().optional(),
   review_note: z.boolean().optional(),
   created_at: z.boolean().optional(),
   user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
@@ -595,10 +639,8 @@ export const UserReviewWhereInputSchema: z.ZodType<Prisma.UserReviewWhereInput> 
   NOT: z.union([ z.lazy(() => UserReviewWhereInputSchema),z.lazy(() => UserReviewWhereInputSchema).array() ]).optional(),
   id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
   user_id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
-  role: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   score: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
-  time_taken: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
-  price: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
+  merit: z.lazy(() => JsonNullableFilterSchema).optional(),
   review_note: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
@@ -607,10 +649,8 @@ export const UserReviewWhereInputSchema: z.ZodType<Prisma.UserReviewWhereInput> 
 export const UserReviewOrderByWithRelationInputSchema: z.ZodType<Prisma.UserReviewOrderByWithRelationInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   user_id: z.lazy(() => SortOrderSchema).optional(),
-  role: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   score: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  time_taken: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  price: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  merit: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   review_note: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   created_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   user: z.lazy(() => UserOrderByWithRelationInputSchema).optional()
@@ -625,10 +665,8 @@ export const UserReviewWhereUniqueInputSchema: z.ZodType<Prisma.UserReviewWhereU
   OR: z.lazy(() => UserReviewWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => UserReviewWhereInputSchema),z.lazy(() => UserReviewWhereInputSchema).array() ]).optional(),
   user_id: z.union([ z.lazy(() => IntFilterSchema),z.number().int() ]).optional(),
-  role: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   score: z.union([ z.lazy(() => IntNullableFilterSchema),z.number().int() ]).optional().nullable(),
-  time_taken: z.union([ z.lazy(() => IntNullableFilterSchema),z.number().int() ]).optional().nullable(),
-  price: z.union([ z.lazy(() => IntNullableFilterSchema),z.number().int() ]).optional().nullable(),
+  merit: z.lazy(() => JsonNullableFilterSchema).optional(),
   review_note: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
@@ -637,10 +675,8 @@ export const UserReviewWhereUniqueInputSchema: z.ZodType<Prisma.UserReviewWhereU
 export const UserReviewOrderByWithAggregationInputSchema: z.ZodType<Prisma.UserReviewOrderByWithAggregationInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   user_id: z.lazy(() => SortOrderSchema).optional(),
-  role: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   score: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  time_taken: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
-  price: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  merit: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   review_note: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   created_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   _count: z.lazy(() => UserReviewCountOrderByAggregateInputSchema).optional(),
@@ -656,10 +692,8 @@ export const UserReviewScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Us
   NOT: z.union([ z.lazy(() => UserReviewScalarWhereWithAggregatesInputSchema),z.lazy(() => UserReviewScalarWhereWithAggregatesInputSchema).array() ]).optional(),
   id: z.union([ z.lazy(() => IntWithAggregatesFilterSchema),z.number() ]).optional(),
   user_id: z.union([ z.lazy(() => IntWithAggregatesFilterSchema),z.number() ]).optional(),
-  role: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   score: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema),z.number() ]).optional().nullable(),
-  time_taken: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema),z.number() ]).optional().nullable(),
-  price: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema),z.number() ]).optional().nullable(),
+  merit: z.lazy(() => JsonNullableWithAggregatesFilterSchema).optional(),
   review_note: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
 }).strict();
@@ -1029,10 +1063,8 @@ export const MatchUncheckedUpdateManyInputSchema: z.ZodType<Prisma.MatchUnchecke
 }).strict();
 
 export const UserReviewCreateInputSchema: z.ZodType<Prisma.UserReviewCreateInput> = z.object({
-  role: z.string().optional().nullable(),
   score: z.number().int().optional().nullable(),
-  time_taken: z.number().int().optional().nullable(),
-  price: z.number().int().optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
   user: z.lazy(() => UserCreateNestedOneWithoutUser_reviewsInputSchema)
@@ -1041,19 +1073,15 @@ export const UserReviewCreateInputSchema: z.ZodType<Prisma.UserReviewCreateInput
 export const UserReviewUncheckedCreateInputSchema: z.ZodType<Prisma.UserReviewUncheckedCreateInput> = z.object({
   id: z.number().int().optional(),
   user_id: z.number().int(),
-  role: z.string().optional().nullable(),
   score: z.number().int().optional().nullable(),
-  time_taken: z.number().int().optional().nullable(),
-  price: z.number().int().optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable()
 }).strict();
 
 export const UserReviewUpdateInputSchema: z.ZodType<Prisma.UserReviewUpdateInput> = z.object({
-  role: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   score: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  time_taken: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutUser_reviewsNestedInputSchema).optional()
@@ -1062,10 +1090,8 @@ export const UserReviewUpdateInputSchema: z.ZodType<Prisma.UserReviewUpdateInput
 export const UserReviewUncheckedUpdateInputSchema: z.ZodType<Prisma.UserReviewUncheckedUpdateInput> = z.object({
   id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   user_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  role: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   score: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  time_taken: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
@@ -1073,19 +1099,15 @@ export const UserReviewUncheckedUpdateInputSchema: z.ZodType<Prisma.UserReviewUn
 export const UserReviewCreateManyInputSchema: z.ZodType<Prisma.UserReviewCreateManyInput> = z.object({
   id: z.number().int().optional(),
   user_id: z.number().int(),
-  role: z.string().optional().nullable(),
   score: z.number().int().optional().nullable(),
-  time_taken: z.number().int().optional().nullable(),
-  price: z.number().int().optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable()
 }).strict();
 
 export const UserReviewUpdateManyMutationInputSchema: z.ZodType<Prisma.UserReviewUpdateManyMutationInput> = z.object({
-  role: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   score: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  time_taken: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
@@ -1093,10 +1115,8 @@ export const UserReviewUpdateManyMutationInputSchema: z.ZodType<Prisma.UserRevie
 export const UserReviewUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserReviewUncheckedUpdateManyInput> = z.object({
   id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   user_id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  role: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   score: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  time_taken: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
@@ -1652,13 +1672,27 @@ export const EnumMatchStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumMat
   _max: z.lazy(() => NestedEnumMatchStatusFilterSchema).optional()
 }).strict();
 
+export const JsonNullableFilterSchema: z.ZodType<Prisma.JsonNullableFilter> = z.object({
+  equals: InputJsonValueSchema.optional(),
+  path: z.string().optional(),
+  string_contains: z.string().optional(),
+  string_starts_with: z.string().optional(),
+  string_ends_with: z.string().optional(),
+  array_contains: InputJsonValueSchema.optional().nullable(),
+  array_starts_with: InputJsonValueSchema.optional().nullable(),
+  array_ends_with: InputJsonValueSchema.optional().nullable(),
+  lt: InputJsonValueSchema.optional(),
+  lte: InputJsonValueSchema.optional(),
+  gt: InputJsonValueSchema.optional(),
+  gte: InputJsonValueSchema.optional(),
+  not: InputJsonValueSchema.optional()
+}).strict();
+
 export const UserReviewCountOrderByAggregateInputSchema: z.ZodType<Prisma.UserReviewCountOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   user_id: z.lazy(() => SortOrderSchema).optional(),
-  role: z.lazy(() => SortOrderSchema).optional(),
   score: z.lazy(() => SortOrderSchema).optional(),
-  time_taken: z.lazy(() => SortOrderSchema).optional(),
-  price: z.lazy(() => SortOrderSchema).optional(),
+  merit: z.lazy(() => SortOrderSchema).optional(),
   review_note: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.lazy(() => SortOrderSchema).optional()
 }).strict();
@@ -1666,18 +1700,13 @@ export const UserReviewCountOrderByAggregateInputSchema: z.ZodType<Prisma.UserRe
 export const UserReviewAvgOrderByAggregateInputSchema: z.ZodType<Prisma.UserReviewAvgOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   user_id: z.lazy(() => SortOrderSchema).optional(),
-  score: z.lazy(() => SortOrderSchema).optional(),
-  time_taken: z.lazy(() => SortOrderSchema).optional(),
-  price: z.lazy(() => SortOrderSchema).optional()
+  score: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const UserReviewMaxOrderByAggregateInputSchema: z.ZodType<Prisma.UserReviewMaxOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   user_id: z.lazy(() => SortOrderSchema).optional(),
-  role: z.lazy(() => SortOrderSchema).optional(),
   score: z.lazy(() => SortOrderSchema).optional(),
-  time_taken: z.lazy(() => SortOrderSchema).optional(),
-  price: z.lazy(() => SortOrderSchema).optional(),
   review_note: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.lazy(() => SortOrderSchema).optional()
 }).strict();
@@ -1685,10 +1714,7 @@ export const UserReviewMaxOrderByAggregateInputSchema: z.ZodType<Prisma.UserRevi
 export const UserReviewMinOrderByAggregateInputSchema: z.ZodType<Prisma.UserReviewMinOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   user_id: z.lazy(() => SortOrderSchema).optional(),
-  role: z.lazy(() => SortOrderSchema).optional(),
   score: z.lazy(() => SortOrderSchema).optional(),
-  time_taken: z.lazy(() => SortOrderSchema).optional(),
-  price: z.lazy(() => SortOrderSchema).optional(),
   review_note: z.lazy(() => SortOrderSchema).optional(),
   created_at: z.lazy(() => SortOrderSchema).optional()
 }).strict();
@@ -1696,9 +1722,26 @@ export const UserReviewMinOrderByAggregateInputSchema: z.ZodType<Prisma.UserRevi
 export const UserReviewSumOrderByAggregateInputSchema: z.ZodType<Prisma.UserReviewSumOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   user_id: z.lazy(() => SortOrderSchema).optional(),
-  score: z.lazy(() => SortOrderSchema).optional(),
-  time_taken: z.lazy(() => SortOrderSchema).optional(),
-  price: z.lazy(() => SortOrderSchema).optional()
+  score: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const JsonNullableWithAggregatesFilterSchema: z.ZodType<Prisma.JsonNullableWithAggregatesFilter> = z.object({
+  equals: InputJsonValueSchema.optional(),
+  path: z.string().optional(),
+  string_contains: z.string().optional(),
+  string_starts_with: z.string().optional(),
+  string_ends_with: z.string().optional(),
+  array_contains: InputJsonValueSchema.optional().nullable(),
+  array_starts_with: InputJsonValueSchema.optional().nullable(),
+  array_ends_with: InputJsonValueSchema.optional().nullable(),
+  lt: InputJsonValueSchema.optional(),
+  lte: InputJsonValueSchema.optional(),
+  gt: InputJsonValueSchema.optional(),
+  gte: InputJsonValueSchema.optional(),
+  not: InputJsonValueSchema.optional(),
+  _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
+  _min: z.lazy(() => NestedJsonNullableFilterSchema).optional(),
+  _max: z.lazy(() => NestedJsonNullableFilterSchema).optional()
 }).strict();
 
 export const BugReportListRelationFilterSchema: z.ZodType<Prisma.BugReportListRelationFilter> = z.object({
@@ -2510,6 +2553,22 @@ export const NestedEnumMatchStatusWithAggregatesFilterSchema: z.ZodType<Prisma.N
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumMatchStatusFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumMatchStatusFilterSchema).optional()
+}).strict();
+
+export const NestedJsonNullableFilterSchema: z.ZodType<Prisma.NestedJsonNullableFilter> = z.object({
+  equals: InputJsonValueSchema.optional(),
+  path: z.string().optional(),
+  string_contains: z.string().optional(),
+  string_starts_with: z.string().optional(),
+  string_ends_with: z.string().optional(),
+  array_contains: InputJsonValueSchema.optional().nullable(),
+  array_starts_with: InputJsonValueSchema.optional().nullable(),
+  array_ends_with: InputJsonValueSchema.optional().nullable(),
+  lt: InputJsonValueSchema.optional(),
+  lte: InputJsonValueSchema.optional(),
+  gt: InputJsonValueSchema.optional(),
+  gte: InputJsonValueSchema.optional(),
+  not: InputJsonValueSchema.optional()
 }).strict();
 
 export const UserCreateWithoutBug_reportsInputSchema: z.ZodType<Prisma.UserCreateWithoutBug_reportsInput> = z.object({
@@ -3524,20 +3583,16 @@ export const MatchCreateManyHunterInputEnvelopeSchema: z.ZodType<Prisma.MatchCre
 }).strict();
 
 export const UserReviewCreateWithoutUserInputSchema: z.ZodType<Prisma.UserReviewCreateWithoutUserInput> = z.object({
-  role: z.string().optional().nullable(),
   score: z.number().int().optional().nullable(),
-  time_taken: z.number().int().optional().nullable(),
-  price: z.number().int().optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable()
 }).strict();
 
 export const UserReviewUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.UserReviewUncheckedCreateWithoutUserInput> = z.object({
   id: z.number().int().optional(),
-  role: z.string().optional().nullable(),
   score: z.number().int().optional().nullable(),
-  time_taken: z.number().int().optional().nullable(),
-  price: z.number().int().optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable()
 }).strict();
@@ -3673,10 +3728,8 @@ export const UserReviewScalarWhereInputSchema: z.ZodType<Prisma.UserReviewScalar
   NOT: z.union([ z.lazy(() => UserReviewScalarWhereInputSchema),z.lazy(() => UserReviewScalarWhereInputSchema).array() ]).optional(),
   id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
   user_id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
-  role: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   score: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
-  time_taken: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
-  price: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
+  merit: z.lazy(() => JsonNullableFilterSchema).optional(),
   review_note: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
 }).strict();
@@ -3806,10 +3859,8 @@ export const MatchCreateManyHunterInputSchema: z.ZodType<Prisma.MatchCreateManyH
 
 export const UserReviewCreateManyUserInputSchema: z.ZodType<Prisma.UserReviewCreateManyUserInput> = z.object({
   id: z.number().int().optional(),
-  role: z.string().optional().nullable(),
   score: z.number().int().optional().nullable(),
-  time_taken: z.number().int().optional().nullable(),
-  price: z.number().int().optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable()
 }).strict();
@@ -3969,30 +4020,24 @@ export const MatchUncheckedUpdateManyWithoutHunterInputSchema: z.ZodType<Prisma.
 }).strict();
 
 export const UserReviewUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserReviewUpdateWithoutUserInput> = z.object({
-  role: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   score: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  time_taken: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserReviewUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserReviewUncheckedUpdateWithoutUserInput> = z.object({
   id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  role: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   score: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  time_taken: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserReviewUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.UserReviewUncheckedUpdateManyWithoutUserInput> = z.object({
   id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-  role: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   score: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  time_taken: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  price: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
