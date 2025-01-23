@@ -86,26 +86,31 @@ export const updateUserInfo = async (user: User, updatedData: Partial<User>): Pr
 //사용자 탈퇴
 export const signoutUser = async (user: User): Promise<void> => {
   const userId = user.id;
-
-  // 사용자가 만든 벌레리포트 삭제
-  await prisma.bugReport.deleteMany({
-    where: { user_id: userId },
-  });
-
-  // 사용자의 리뷰 삭제
-  await prisma.userReview.deleteMany({
-    where: { user_id: userId },
-  });
-
-  // 헬퍼/헌터 매치 삭제?
-  await prisma.match.deleteMany({
-    where: {
-      OR: [{ helper_id: userId }, { hunter_id: userId }],
-    },
-  });
-
-  // 사용자를 DB에서 삭제
-  await prisma.user.delete({
-    where: { id: userId },
-  });
+  
+  // 헬퍼/헌터 매치 상태 확인
+  try {
+    const activeMatches = await prisma.match.findMany({
+      where: {
+        OR: [{ helper_id: userId }, { hunter_id: userId }],
+        NOT: { status: 'MATCH_CLOSED' },
+      },
+    });
+  
+    if (activeMatches.length > 0) {
+      const error = new Error('매칭중인 상태가 있어 탈퇴할 수 없습니다.');
+      (error as any).statusCode = 400;
+      throw error;
+    }
+    await prisma.match.deleteMany({
+      where: {
+        OR: [{ helper_id: userId }, { hunter_id: userId }],
+      },
+    });
+    await prisma.bugReport.deleteMany({ where: { user_id: userId } });
+    await prisma.userReview.deleteMany({ where: { user_id: userId } });
+    await prisma.user.delete({ where: { id: userId } });
+  } catch (error) {
+    console.error('Error during user sign out:', error);
+    throw error;
+  }
 };

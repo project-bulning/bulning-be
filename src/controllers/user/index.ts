@@ -21,7 +21,7 @@ export const getMyInfo = async(req: AuthenticatedRequest, res: Response) => {
   res.json(ret);
 }
 
-// 회원 정보 수정 
+// 회원 정보 수정
 export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
   if(! req.user) {
     sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
@@ -47,10 +47,16 @@ export const signoutMyInfo = async(req: AuthenticatedRequest, res: Response) => 
     sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
     return;
   }
+
   try {
     await signoutUser(req.user);
     res.json({ message: '회원 탈퇴가 완료되었습니다.' });
   } catch (error) {
-    sendError(res, '회원 탈퇴 처리 중 오류가 발생했습니다.', StatusCodes.INTERNAL_SERVER_ERROR);
+    if ((error as any).statusCode === 400) {
+      // 매칭중인 상태로 탈퇴할 수 없는 경우
+      sendError(res, (error as Error).message, StatusCodes.BAD_REQUEST);
+    } else {
+      sendError(res, '회원 탈퇴 처리 중 오류가 발생했습니다.', StatusCodes.INTERNAL_SERVER_ERROR);
+    }
   }
 }
