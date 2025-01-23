@@ -97,7 +97,12 @@ export const signoutUser = async (user: User): Promise<void> => {
     where: { user_id: userId },
   });
 
-  // 헬퍼/헌터 매치 삭제? 
+  // 헬퍼/헌터 매치 삭제?
+  await prisma.match.deleteMany({
+    where: {
+      OR: [{ helper_id: userId }, { hunter_id: userId }],
+    },
+  });
 
   // 사용자를 DB에서 삭제
   await prisma.user.delete({
