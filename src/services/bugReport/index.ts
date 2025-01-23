@@ -65,8 +65,11 @@ const userLocationMap = users.reduce((map, user) => {
     let createdAtLabel;
     if (minutesDiff < 60) {
       createdAtLabel = `${minutesDiff}분 전`;
+    } else if (minutesDiff < 1440) { // 1440분은 24시간
+      const hoursDiff = Math.floor(minutesDiff / 60); // 시간 단위로 변환
+      createdAtLabel = `${hoursDiff}시간 전`;
     } else {
-      createdAtLabel = format(new Date(report.created_at), 'yyyy-MM-dd HH:mm:ss');
+      createdAtLabel = format(new Date(report.created_at || 0), 'yyyy-MM-dd HH:mm:ss');
     }
 
     return {
@@ -111,6 +114,9 @@ export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsRe
     let createdAtLabel;
     if (minutesDiff < 60) {
       createdAtLabel = `${minutesDiff}분 전`;
+    } else if (minutesDiff < 1440) { // 1440분은 24시간
+      const hoursDiff = Math.floor(minutesDiff / 60); // 시간 단위로 변환
+      createdAtLabel = `${hoursDiff}시간 전`;
     } else {
       createdAtLabel = format(new Date(bugReport.created_at || 0), 'yyyy-MM-dd HH:mm:ss');
     }
