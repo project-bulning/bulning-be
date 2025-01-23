@@ -3,7 +3,7 @@ import { sendError } from '@/utils/response';
 import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Match, User } from '@prisma/client';
-import { getMatchByUser } from '@/services/match';
+import { getMatchByUser, createMatch } from '@/services/match';
 import { signoutUser, updateUserInfo } from '@/services/userAuthService';
 
 //회원 정보 조회
@@ -22,12 +22,27 @@ export const getMyInfo = async(req: AuthenticatedRequest, res: Response) => {
 }
 
 // 회원 정보 수정
-export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
+export const updateUser = async (
+  req: AuthenticatedRequest<{},{},{reportId:string}>, 
+  res: Response
+) => {
   if(! req.user) {
     sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
     return;
   }
   const updatedData = req.body;
+  const reportID = req.query.reportId ? req.query.reportId : null;
+
+  if (reportID) {
+    if (isNaN(Number(reportID))) {
+      return sendError(res, 'reportId는 숫자여야 합니다.');
+    }
+    try{
+      await createMatch(req.user, Number(reportID));
+    }catch (error) {
+      sendError(res, '매칭 중 오류가 발생했습니다다', 500);
+    }
+  }
 
   try {
     const updatedUser = await updateUserInfo(req.user, updatedData);

@@ -24,3 +24,30 @@ export const setMatchStatus = (matchId: number, accept: boolean) => {
     }
   });
 }
+
+//헌터의 지원으로 매치 생성
+export const createMatch = async (user: User, reportID: number): Promise<void> => {
+
+  const bugReport = await prisma.bugReport.findUnique({
+    where: { id: reportID },
+    select: { user_id: true },
+  });
+
+  if (!bugReport) {
+    throw new Error('BugReport를 찾을 수 없습니다.');
+  }
+
+  // Match 테이블에 새로운 레코드 생성
+  await prisma.match.create({
+    data: {
+      bug_report_id: reportID,
+      helper_id: bugReport.user_id,
+      hunter_id: user.id, 
+      status: 'PENDING', 
+    },
+    include: {
+      helper: true,
+      hunter: true, 
+    },
+  });  
+};
