@@ -79,26 +79,27 @@ model UserReview {
 }
 
 model User {
-  id             Int          @id @default(autoincrement())
-  kakao_id       String       @db.VarChar(50)
-  name           String?      @db.VarChar(255)
-  nickname       String?      @db.VarChar(45)
-  phone_number   String?      @db.VarChar(20)
-  location       String?      @db.VarChar(255)
-  gender         String?      @db.VarChar(50)
-  role           String?      @db.VarChar(50)
-  hunt_count     Int?
-  age_group      String?      @db.VarChar(50)
-  created_at     DateTime?    @default(now()) @db.Timestamp(0)
-  updated_at     DateTime?    @default(now()) @db.Timestamp(0)
-  fcm_token      String?      @db.VarChar(255)
-  pr_memo        String?      @db.Text
-  bug_reports    BugReport[]
-  issued_chats   Chat[]       @relation("User_Chat_Issued")
-  received_chats Chat[]       @relation("User_Chat_Received")
-  helper_matches Match[]      @relation("User_Helper_Matches")
-  hunter_matches Match[]      @relation("User_Hunter_Matches")
-  user_reviews   UserReview[]
+  id              Int          @id @default(autoincrement())
+  kakao_id        String       @db.VarChar(50)
+  name            String?      @db.VarChar(255)
+  nickname        String?      @db.VarChar(45)
+  phone_number    String?      @db.VarChar(20)
+  location        String?      @db.VarChar(255)
+  gender          String?      @db.VarChar(50)
+  role            String?      @db.VarChar(50)
+  hunt_count      Int?
+  age_group       String?      @db.VarChar(50)
+  created_at      DateTime?    @default(now()) @db.Timestamp(0)
+  updated_at      DateTime?    @default(now()) @db.Timestamp(0)
+  fcm_token       String?      @db.VarChar(255)
+  pr_memo         String?      @db.Text
+  location_detail String?      @db.VarChar(225)
+  bug_reports     BugReport[]
+  issued_chats    Chat[]       @relation("User_Chat_Issued")
+  received_chats  Chat[]       @relation("User_Chat_Received")
+  helper_matches  Match[]      @relation("User_Helper_Matches")
+  hunter_matches  Match[]      @relation("User_Hunter_Matches")
+  user_reviews    UserReview[]
 }
 
 enum ChatStatus {
