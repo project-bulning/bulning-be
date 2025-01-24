@@ -143,15 +143,27 @@ export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsRe
     };
 };
 
-export const createBugReport = (data: CreateBugReportRequestBody, user: User) => {
+export const createBugReport = async (data: CreateBugReportRequestBody, user: User) => {
   if(data.bug_image_url && ! isValidS3Url(data.bug_image_url)) {
     throw new Error('올바르지 않은 이미지 URL입니다.');
   }
   if(data.price < 0) {
     throw new Error('값이 0보다 작을 수 없습니다.');
   }
+
+  // 유저의 location과 location_detail 업데이트
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      location: data.location,
+      location_detail: data.location_detail,
+    },
+  });
+
+  const { location, location_detail, ...bugReportData } = data;
+
   const creationInput = {
-    ...data,
+    ...bugReportData,
     user: {
       connect: {
         id: user.id,

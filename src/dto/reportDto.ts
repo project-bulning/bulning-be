@@ -1,6 +1,7 @@
 import { BugReport } from '@prisma/client';
 
-export type CreateBugReportRequestBody = Omit<BugReport, 'id' | 'created_at' | 'status' | 'user_id'>;
+export type CreateBugReportRequestBody = Omit<BugReport, 'id' | 'created_at' | 'status' | 'user_id'>
+& { location: string} & { location_detail : string};
 export type CreateBugReportResponse = {
     bug_report_id: number;
 }
