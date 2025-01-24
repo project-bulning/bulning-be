@@ -138,6 +138,7 @@ export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsRe
       latitude: noisyLatitude,
       longitude: noisyLongitude,
       location: user?.location || '',
+      location_detail: user?.location_detail || '',
       created_at: createdAtLabel,
     };
 };

@@ -12,7 +12,7 @@ export type GetBugReportsResponse = {
 }
 
 export type GetBugReportDetailsResponse = Omit<BugReport, 'id' | 'created_at' | 'user_id'>
-& { nickname: string} & { location: string} & { created_at: Date | string};
+& { nickname: string} & { location: string} & { location_detail : string} & { created_at: Date | string};
 
 export interface CreateBugImageResponse {
     image_url: string;
