@@ -90,10 +90,11 @@ export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoRe
   const response: HunterInfoResponse = {
     name: hunter.name || '',
     location: hunter.location || '',
+    location_detail: hunter.location_detail || '',
     gender: hunter.gender || '',
     age_group: hunter.age_group || '',
     avg_score: avgScore,
-    user_reviews_count: userReviews.length,
+    trade_count: userReviews.length,
     user_reviews: userReviewsResponse,
     pr_memo : hunter.pr_memo || ''
   };
