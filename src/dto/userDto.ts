@@ -6,6 +6,7 @@ export interface KaKaoUserDTO {
 }
 
 export interface RegistrationRequestBody {
+    name: string,
     nickname: string;
     location: string;
     //termsAccepted: boolean;
