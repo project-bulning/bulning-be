@@ -30,6 +30,7 @@ export const getAllBugReports = async (
         POINT(${currentLongitude},${currentLatitude})
       ) AS distance
     FROM BugReport
+    HAVING distance <= 5000
     ORDER BY distance ASC;
   `;
 
@@ -80,7 +81,7 @@ const userLocationMap = users.reduce((map, user) => {
       bug_image_url: report.bug_image_url,
       price: report.price,
       location: userLocationMap[report.user_id] || "알 수 없음",
-      distance: report.distance,
+      distance: Math.round(report.distance),
     };
   });
 
