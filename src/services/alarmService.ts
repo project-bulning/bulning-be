@@ -72,8 +72,8 @@ export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoRe
   //리뷰, 평균평점 계산
   const userReviews = hunter.user_reviews;
   const avgScore = userReviews.length > 0
-    ? userReviews.reduce((sum, review) => sum + (review.score || 0), 0) / userReviews.length
-    : 0;
+  ? parseFloat((userReviews.reduce((sum, review) => sum + (review.score || 0), 0) / userReviews.length).toFixed(1))
+  : 0;
 
 
   //반환할 리뷰 리스트
