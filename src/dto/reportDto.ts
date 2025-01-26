@@ -5,8 +5,8 @@ export type CreateBugReportResponse = {
     bug_report_id: number;
 }
 
-export type ProcessedBugReport = Pick<BugReport, 'id' | 'title' | 'status' | 'bug_image_url' | 'price'>
-& { location: string} & { created_at: Date | string} &{ distance: number};
+export type ProcessedBugReport = Pick<BugReport, 'id' | 'title' | 'status' | 'bug_image_url' | 'price'|'location'>
+& { created_at: Date | string} &{ distance: number};
 export type GetBugReportsResponse = {
     bug_reports: ProcessedBugReport[];
 }

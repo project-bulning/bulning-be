@@ -25,6 +25,7 @@ export const getAllBugReports = async (
       bug_image_url,
       price,
       user_id,
+      location,
       ST_DISTANCE_SPHERE(
         POINT(longitude,latitude),
         POINT(${currentLongitude},${currentLatitude})
@@ -35,7 +36,7 @@ export const getAllBugReports = async (
   `;
 
   const reports = await prisma.$queryRaw<
-    (ProcessedBugReport & { distance: number, price: number, user_id:number,  location: string })[]
+    (ProcessedBugReport & { distance: number, price: number, user_id:number })[]
   >(selectQuery as Prisma.Sql);
 
   //현재 시간 기준으로 몇 분 전인지
@@ -62,7 +63,7 @@ export const getAllBugReports = async (
       status: report.status || 'UNKNOWN',
       bug_image_url: report.bug_image_url,
       price: report.price,
-      location: report.location || "알 수 없음",
+      location: report.location,
       distance: Math.round(report.distance),
     };
   });
