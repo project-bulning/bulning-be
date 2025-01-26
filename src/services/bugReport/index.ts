@@ -35,26 +35,8 @@ export const getAllBugReports = async (
   `;
 
   const reports = await prisma.$queryRaw<
-    (ProcessedBugReport & { distance: number, price: number, user_id:number })[]
+    (ProcessedBugReport & { distance: number, price: number, user_id:number,  location: string })[]
   >(selectQuery as Prisma.Sql);
-
-  //위치
-  const userIds = reports.map((report) => report.user_id);
-  const users = await prisma.user.findMany({
-  where: {
-    id: { in: userIds },
-  },
-  select: {
-    id: true,
-    location: true,
-  },
-});
-
-const userLocationMap = users.reduce((map, user) => {
-  map[user.id] = user.location || "알 수 없음";
-  return map;
-}, {} as Record<number, string>);
-
 
   //현재 시간 기준으로 몇 분 전인지
   const now = new Date();
@@ -80,7 +62,7 @@ const userLocationMap = users.reduce((map, user) => {
       status: report.status || 'UNKNOWN',
       bug_image_url: report.bug_image_url,
       price: report.price,
-      location: userLocationMap[report.user_id] || "알 수 없음",
+      location: report.location || "알 수 없음",
       distance: Math.round(report.distance),
     };
   });
@@ -137,8 +119,6 @@ export const fetchPostDetail = async (id: number): Promise<GetBugReportDetailsRe
       nickname: user?.nickname || '',
       latitude: noisyLatitude,
       longitude: noisyLongitude,
-      location: user?.location || '',
-      location_detail: user?.location_detail || '',
       created_at: createdAtLabel,
     };
 };
@@ -151,19 +131,8 @@ export const createBugReport = async (data: CreateBugReportRequestBody, user: Us
     throw new Error('값이 0보다 작을 수 없습니다.');
   }
 
-  // 유저의 location과 location_detail 업데이트
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      location: data.location,
-      location_detail: data.location_detail,
-    },
-  });
-
-  const { location, location_detail, ...bugReportData } = data;
-
   const creationInput = {
-    ...bugReportData,
+    ...data,
     user: {
       connect: {
         id: user.id,
