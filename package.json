@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cross-env NODE_ENV=production nodemon dist/src/index.js",
+    "start": "cross-env NODE_ENV=production node dist/src/index.js",
     "build": "tsc -p . && tsc-alias",
     "dev": "cross-env NODE_ENV=development nodemon -e ts,js --exec \"ts-node -r tsconfig-paths/register src\""
   },

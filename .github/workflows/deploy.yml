@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - main
 
 jobs:
   deploy:
@@ -43,7 +44,7 @@ jobs:
           key: ${{ secrets.ssh_key }}
           source: "dist/*"
           target: "~/${{ secrets.serverdir }}"
-      - name: Setup Server and start
+      - name: Setup Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.ssh_server }}
@@ -53,4 +54,22 @@ jobs:
             cd ~/${{ secrets.serverdir }}
             git pull origin ${{ github.ref_name }}
             npm install
-            sudo npx pm2 start 'npm run start'
+      - name: Start Production Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.ssh_server }}
+          username: ${{ secrets.ssh_user }}
+          key: ${{ secrets.ssh_key }}
+          script: |
+            cd ~/${{ secrets.serverdir }}
+            sudo npx pm2 start ecosystem.config.js --only bulning-production
+      - name: Start Development Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.ssh_server }}
+          username: ${{ secrets.ssh_user }}
+          key: ${{ secrets.ssh_key }}
+          script: |
+            cd ~/${{ secrets.serverdir }}
+            npx prisma generate
+            sudo npx pm2 start ecosystem.config.js --only bulning-development

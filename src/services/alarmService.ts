@@ -1,6 +1,6 @@
 import prisma from '@/utils/database';
 import type { User } from '@prisma/client';
-import { messaging } from '@/utils/firbase';
+import { messaging } from '@/utils/firebase';
 import { HunterInfoResponse } from '@/dto/userDto';
 import { UserReviewResponse } from '@/dto/userReviewDto';
 
@@ -56,7 +56,7 @@ export const sendAlarmService = async (reportId: number, user: User) => {
 
 //헌터 정보 보내기
 export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoResponse | null> => {
-  
+
   //ID로 헌터 찾기기
   const hunter = await prisma.user.findUnique({
     where: { id: hunterId },
@@ -80,8 +80,8 @@ export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoRe
   const userReviewsResponse: UserReviewResponse[] = userReviews.map((review) => ({
     score: review.score || 0,
     review_note: review.review_note || '',
-    merit: Array.isArray(review.merit) 
-    ? review.merit.map((item) => String(item)) : [String(review.merit)], 
+    merit: Array.isArray(review.merit)
+    ? review.merit.map((item) => String(item)) : [String(review.merit)],
     created_at: review.created_at || new Date(),
   }));
 
