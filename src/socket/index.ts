@@ -32,6 +32,10 @@ export const handleSocketConnection = async(ws: WebSocket, req: http.IncomingMes
       },
     }) as User;
     const session = Session.userSessions[decoded.id] = new Session(ws, user);
+    session.init().catch((e) => {
+      console.error(e);
+      closeSocket(ws, '에러가 발생했습니다.');
+    });
     ws.on('message', session.handleRequest.bind(session))
   } catch(e) {
     console.error(e);

@@ -31,10 +31,12 @@ export default class Session {
     return targetSession.sendMessage(chat);
   }
   public async sendUnreadMessages() {
+    const match = await this.getMatch() as Match;
     const chats = await prisma.chat.findMany({
       where: {
         target_id: this.user.id,
         status: 'UNREAD',
+        match: match,
       }
     });
     this.websocket.send(JSON.stringify(chats));
@@ -89,10 +91,17 @@ export default class Session {
     return this.websocket.readyState === WebSocket.CLOSED;
   }
 
+  public async init() {
+    const match = await this.getMatch();
+    if(!this.isMatchOpen(match)) {
+      throw new Error('진행중인 매치가 없습니다.');
+    }
+    this.sendUnreadMessages();
+  }
+
   constructor(ws: WebSocket, user: User) {
     this._ws = ws;
     this._user = user;
-    this.sendUnreadMessages();
   }
 
   get user(): User {
