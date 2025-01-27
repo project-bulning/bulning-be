@@ -26,7 +26,8 @@ export const kakaoCallback = async (req: Request, res: Response) => {
 
     // JWT 토큰 생성 후 응답
     const jwtToken = generateJwtToken(user.id, kakaoId);
-    const redirectUrl = `${process.env.REDIRECT_URL}/auth/login?access_token=${jwtToken}`;
+    const baseRedirectionUrl = process.env.NODE_ENV === 'production' ? process.env.REDIRECT_URL : process.env.REDIRECT_URL_DEV;
+    const redirectUrl = `${baseRedirectionUrl}/auth/login?access_token=${jwtToken}`;
     res.redirect(redirectUrl as string);
 
   } catch (error) {
