@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - develop
-      - fix/SCRUM-118-deploy-issue
+      - main
 
 jobs:
   deploy:
@@ -55,7 +55,6 @@ jobs:
             git pull origin ${{ github.ref_name }}
             npm install
       - name: Start Production Server
-        if: github.ref == 'refs/heads/main'
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.ssh_server }}
@@ -65,7 +64,6 @@ jobs:
             cd ~/${{ secrets.serverdir }}
             sudo npx pm2 start ecosystem.config.js --only bulning-production
       - name: Start Development Server
-        if: github.ref != 'refs/heads/main'
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.ssh_server }}
