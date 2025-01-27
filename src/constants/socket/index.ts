@@ -10,8 +10,3 @@ export const SocketStatusCodes = {
   FORBIDDEN: 4003,
   NOT_FOUND: 4004,
 }
-
-export const SocketMessageIds = {
-  MESSAGE_SEND: 100,
-  MESSAGE_READ: 101,
-}
