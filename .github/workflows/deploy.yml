@@ -54,7 +54,7 @@ jobs:
             cd ~/${{ secrets.serverdir }}
             git pull origin ${{ github.ref_name }}
             npm install
-      - name: Start Development Server
+      - name: Start Production Server
         if: github.ref == 'refs/heads/main'
         uses: appleboy/ssh-action@master
         with:
@@ -64,7 +64,7 @@ jobs:
           script: |
             cd ~/${{ secrets.serverdir }}
             sudo npx pm2 start ecosystem.config.js --only bulning-production
-      - name: Start Production Server
+      - name: Start Development Server
         if: github.ref != 'refs/heads/main'
         uses: appleboy/ssh-action@master
         with:
@@ -73,4 +73,5 @@ jobs:
           key: ${{ secrets.ssh_key }}
           script: |
             cd ~/${{ secrets.serverdir }}
+            npx prisma generate
             sudo npx pm2 start ecosystem.config.js --only bulning-development
