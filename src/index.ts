@@ -19,7 +19,7 @@ import { handleSocketConnection } from '@/domains/chat/socket';
 const app = express();
 const DEV_PORT = 3000;
 const PRODUCTION_PORT = 443;
-const PORT = process.env.NODE_ENV == 'production' ? PRODUCTION_PORT : DEV_PORT;
+const PORT = process.env.NODE_ENV == 'development' ? DEV_PORT : PRODUCTION_PORT;
 const API_PREFIX = '/api';
 const VIEW_DIRECTORY = path.resolve(process.env.VIEW_DIRECTORY as string);
 
