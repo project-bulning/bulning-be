@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Chat Client</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+    #chat {
+      width: 80%;
+      max-width: 600px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    #messages {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    #messages div {
+      margin-bottom: 10px;
+    }
+    #messageForm {
+      display: flex;
+      gap: 10px;
+    }
+    #messageForm input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    #messageForm button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #messageForm button:hover {
+      background-color: #0056b3;
+    }
+    #tokenForm {
+      margin-bottom: 20px;
+    }
+    #tokenForm input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    #tokenForm button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #28a745;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #tokenForm button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+<form id="tokenForm">
+  <input type="text" id="accessTokenInput" placeholder="Enter Access Token" required />
+  <button type="submit">Connect</button>
+</form>
+
+<div id="chat" style="display: none;">
+  <div id="messages"></div>
+  <form id="messageForm">
+    <input type="text" id="messageInput" placeholder="Type your message..." maxlength="255" required />
+    <button type="submit">Send</button>
+  </form>
+</div>
+
+<script>
+  let socket;
+
+  const tokenForm = document.getElementById('tokenForm');
+  const accessTokenInput = document.getElementById('accessTokenInput');
+  const chatDiv = document.getElementById('chat');
+  const messagesDiv = document.getElementById('messages');
+  const messageForm = document.getElementById('messageForm');
+  const messageInput = document.getElementById('messageInput');
+
+  // Connect to WebSocket server
+  function connectWebSocket(token) {
+    const wsUrl = `ws://localhost:3000?token=${encodeURIComponent(token)}`;
+    socket = new WebSocket(wsUrl);
+
+    socket.addEventListener('open', () => {
+      console.log('Connected to WebSocket server');
+      addMessage('Connected to WebSocket server');
+      chatDiv.style.display = 'block';
+    });
+
+    socket.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if(! data.content && Array.isArray(data)) {
+        for(const chat of data) {
+          addMessage(`읽지 않은 메시지: ${chat.content}`);
+        }
+        return;
+      }
+      addMessage(`상대의 메시지: ${data.content}`);
+    });
+
+    socket.addEventListener('close', () => {
+      console.log('WebSocket connection closed');
+      addMessage('WebSocket connection closed');
+      chatDiv.style.display = 'none';
+    });
+
+    socket.addEventListener('error', (error) => {
+      console.error('WebSocket error:', error);
+      addMessage('WebSocket error');
+    });
+  }
+
+  // Add message to chat
+  function addMessage(message) {
+    const div = document.createElement('div');
+    div.textContent = message;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  // Handle token form submission
+  tokenForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const token = accessTokenInput.value.trim();
+    if (!token) return;
+
+    connectWebSocket(token);
+  });
+
+  // Handle message form submission
+  messageForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const content = messageInput.value.trim();
+    if (!content) return;
+
+    const message = {
+      message_type: 'write',
+      content: content
+    };
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify(message));
+      addMessage(`You: ${content}`);
+      messageInput.value = '';
+    } else {
+      addMessage('WebSocket is not connected');
+    }
+  });
+</script>
+</body>
+</html>
