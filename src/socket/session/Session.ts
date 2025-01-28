@@ -26,9 +26,12 @@ export default class Session {
         target_id: targetId,
         issuer_id: this.user.id,
         content: message,
+        match_id: match.id
       }
     });
-    return targetSession.sendMessage(chat);
+    if(targetSession) {
+      targetSession.sendMessage(chat);
+    }
   }
   public async sendUnreadMessages() {
     const match = await this.getMatch() as Match;
@@ -36,17 +39,17 @@ export default class Session {
       where: {
         target_id: this.user.id,
         status: 'UNREAD',
-        match: match,
+        match_id: match.id,
       }
     });
     this.websocket.send(JSON.stringify(chats));
   }
-  public handleRequest(message: string) {
+  public async handleRequest(message: string) {
     const req = JSON.parse(message) as SocketMessage;
     if (req.message_type === 'read') {
-      this.handleWriteChat(req as WriteChatRequest);
-    } else if (req.message_type === 'write') {
       this.handleReadChat(req as ReadChatRequest);
+    } else if (req.message_type === 'write') {
+      await this.handleWriteChat(req as WriteChatRequest);
     } else {
       this.handleClose();
     }
@@ -68,10 +71,10 @@ export default class Session {
   public handleReadChat(req: ReadChatRequest) {
     this.readAllChats();
   }
-  public handleWriteChat(req: WriteChatRequest) {
+  public async handleWriteChat(req: WriteChatRequest) {
     try {
       WriteChatRequestSchema.parse(req);
-      this.createMessage(req.content);
+      await this.createMessage(req.content);
     } catch(e) {
       console.error(e);
     }
