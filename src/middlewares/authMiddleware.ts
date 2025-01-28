@@ -5,7 +5,7 @@ import prisma from '@/utils/database';
 import { User } from '@prisma/client';
 import { sendError } from '@/utils/response';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
-import { ExtendedJWTPayload } from '@/dto/authDto';
+import { ExtendedJWTPayload } from '@/domains/auth/types';
 
 export const authenticateToken = async (
   req: AuthenticatedRequest,
