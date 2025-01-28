@@ -19,6 +19,7 @@ import { handleSocketConnection } from '@/domains/chat/socket';
 const app = express();
 const DEV_PORT = 3000;
 const PRODUCTION_PORT = 443;
+const PORT = process.env.NODE_ENV == 'production' ? PRODUCTION_PORT : DEV_PORT;
 const API_PREFIX = '/api';
 const VIEW_DIRECTORY = path.resolve(process.env.VIEW_DIRECTORY as string);
 
@@ -50,7 +51,7 @@ app.get('*', (req: Request, res: Response) => {
 });
 
 // 서버 시작
-if(process.env.NODE_ENV === 'production') {
+if(process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test-server') {
   const keyPath = process.env.SSL_PRIVKEY as string;
   const caPath = process.env.SSL_CERT as string;
   const certPath = process.env.SSL_FULLCHAIN as string;
@@ -60,13 +61,15 @@ if(process.env.NODE_ENV === 'production') {
     cert: fs.readFileSync(certPath),
   };
   const server = https.createServer(securityConfig, app);
-  server.listen(PRODUCTION_PORT, () => `Server is running on ${process.env.BASE_URL}:${PRODUCTION_PORT}`);
+  server.listen(PORT, () => {
+    console.log(`Server is running on ${process.env.BASE_URL}:${PORT}`)
+  });
   const wss = new WebSocketServer({ server });
   wss.on('connection', handleSocketConnection);
 } else {
   const server = http.createServer(app);
-  server.listen(DEV_PORT, () => {
-    console.log(`Server is running on http://localhost:${DEV_PORT}`);
+  server.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
   });
   const ws = new WebSocketServer({ server });
   ws.on('connection', handleSocketConnection);
