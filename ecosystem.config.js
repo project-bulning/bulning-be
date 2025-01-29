@@ -11,10 +11,12 @@ module.exports = {
     },
     {
       name: "bulning-development",
-      script: "npm",
-      args: "run dev:test-server",
+      script: "npm run dev:test-server",
       autorestart: false,
       watch: false,
+      env: {
+        NODE_ENV: 'test-server'
+      }
     }
   ],
 };
