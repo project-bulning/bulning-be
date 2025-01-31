@@ -76,4 +76,12 @@ export const createMatch = async (user: User, reportID: number): Promise<void> =
       hunter: true, 
     },
   });  
+
+  // BugReport의 status를 PENDING으로 업데이트
+  await prisma.bugReport.update({
+    where: { id: reportID },
+    data: {
+      status: 'PENDING',
+    },
+  });
 };
