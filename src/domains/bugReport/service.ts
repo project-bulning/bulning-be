@@ -31,6 +31,7 @@ export const getAllBugReports = async (
         POINT(${currentLongitude},${currentLatitude})
       ) AS distance
     FROM BugReport
+    WHERE status = 'WAITING_MATCH'
     HAVING distance <= 5000
     ORDER BY distance ASC;
   `;

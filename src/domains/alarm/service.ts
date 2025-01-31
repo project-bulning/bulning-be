@@ -55,7 +55,7 @@ export const sendAlarmService = async (reportId: number, user: User) => {
 };
 
 //헌터 정보 보내기
-export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoResponse | null> => {
+export const hunterInfoService =  async (hunterId: number,  user: User): Promise<HunterInfoResponse | null> => {
 
   //ID로 헌터 찾기기
   const hunter = await prisma.user.findUnique({
@@ -85,6 +85,20 @@ export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoRe
     created_at: review.created_at || new Date(),
   }));
 
+  // Match 테이블에서 헌터와 연결된 PENDING 상태의 Match ID 찾기
+  const match = await prisma.match.findFirst({
+    where: {
+      helper_id: user.id,
+      hunter_id: hunterId,
+      status: 'PENDING',
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const matchId = match ? match.id : 0;
+
 
   //응답
   return {
@@ -96,6 +110,7 @@ export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoRe
     avg_score: avgScore,
     trade_count: userReviews.length,
     user_reviews: userReviewsResponse,
-    pr_memo: hunter.pr_memo || ''
+    pr_memo: hunter.pr_memo || '',
+    match_id : matchId
   };
 }
