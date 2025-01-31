@@ -21,4 +21,5 @@ export interface HunterInfoResponse {
   trade_count: number;
   user_reviews: UserReviewResponse[];
   pr_memo: string;
+  match_id:number;
 }
