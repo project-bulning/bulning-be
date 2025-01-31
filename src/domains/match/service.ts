@@ -13,7 +13,33 @@ export const getMatchByUser = (user: User) => {
   });
 }
 
-export const setMatchStatus = (matchId: number, accept: boolean) => {
+export const setMatchStatus = async (matchId: number, accept: boolean) => {
+  // accept가 false일 때 bugReport status를 WAITING_MATCH로 바꾸기
+  const match = await prisma.match.findUnique({
+    where: {
+      id: matchId,
+    },
+    include: {
+      bug_report: true,
+    },
+  });
+
+  if (!match) {
+    throw new Error("해당 Match를 찾을 수 없습니다.");
+  }
+
+  if (!accept && match.bug_report) {
+    await prisma.bugReport.update({
+      data: {
+        status: 'WAITING_MATCH',
+      },
+      where: {
+        id: match.bug_report.id,
+      },
+    });
+  }
+
+  //accept에 따라 Match status를 바꾸기
   return prisma.match.update({
     data: {
       status: accept ? 'MATCH_ACCEPTED' : 'MATCH_REJECTED',
