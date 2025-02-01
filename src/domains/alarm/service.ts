@@ -35,13 +35,12 @@ export const sendAlarmService = async (reportId: number, user: User) => {
     }
 
     const message = {
-      notification: {
-        title: "헌터의 지원",
-        body: JSON.stringify({
-          user: `${user.id}`,
-          message: `${user.name}님이 사냥을 지원하셨습니다. 수락하시겠습니까?`,
-        })},
       token: bugReport.user.fcm_token,
+      notification: {
+        title: "벌레를 잡아줄 사람이 나타났어요!",
+        body: `우리 동네 헌터의 정보를 빠르게 확인해 보세요`,
+      },
+      data:{user: `${user.id}`},
     };
 
     // FCM을 통해 알림 전송
