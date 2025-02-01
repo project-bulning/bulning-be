@@ -21,20 +21,13 @@ export const setBugReportStatus = async (matchId: number, trade: boolean) => {
     try {
         const { bugReport } = await getMatchAndBugReport(matchId);
   
-      // trade에 따라 BugReport와 Match 상태 업데이트
+      // trade에 따라 BugReport 상태 업데이트
       if (trade) {
         // trade가 true (거래 종료)
         await prisma.bugReport.update({
           where: { id: bugReport.id },
           data: { status: 'COMPLETED' }, 
         });
-  
-        await prisma.match.update({
-          where: { id: matchId },
-          data: { status: 'MATCH_CLOSED', resolved_at: new Date() }, 
-        });
-
-        //채팅 강제 종료?
 
       } else {
         // trade가 false(거래 취소)
@@ -42,12 +35,15 @@ export const setBugReportStatus = async (matchId: number, trade: boolean) => {
           where: { id: bugReport.id },
           data: { status: 'WAITING_MATCH' }, 
         });
-  
-        await prisma.match.update({
-          where: { id: matchId },
-          data: { status: 'MATCH_REJECTED', resolved_at: new Date() },
-        });
       }
+
+      //Match 상태 업데이트
+      await prisma.match.update({
+        where: { id: matchId },
+        data: { status: 'MATCH_CLOSED', resolved_at: new Date() }, 
+      });
+
+      //채팅 강제 종료?
   
       console.log(`BugReport와 Match의 status가 성공적으로 업데이트 : ${matchId}`);
     } catch (error) {
