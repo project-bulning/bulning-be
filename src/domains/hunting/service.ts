@@ -3,23 +3,27 @@ import prisma from '@/utils/database';
 
 // 공통 로직: matchId로 BugReport 조회
 const getMatchAndBugReport = async (matchId: number) => {
-    // Match 테이블에서 matchId로 해당 Match와 BugReport 조회
-    const match = await prisma.match.findUnique({
-      where: { id: matchId },
-      include: { bug_report: true },
-    });
-  
-    if (!match || !match.bug_report) {
-      throw new Error('해당 matchId에 대한 Match 또는 BugReport를 찾을 수 없습니다.');
+  // matchId로 연결된 BugReport 조회
+  const bugReport_matchId = await prisma.bugReport.findFirst({
+    where: {
+      matches: {
+        some: { id: matchId }
+      }
     }
-  
-    return { bugReport: match.bug_report };
+  });
+
+  if (!bugReport_matchId) {
+    throw new Error('해당 matchId에 대한 Match 또는 BugReport를 찾을 수 없습니다.');
+  }
+  return bugReport_matchId;
 }
+
+
   
 //거래 종료, 거래 취소
 export const setBugReportStatus = async (matchId: number, trade: boolean) => {
     try {
-        const { bugReport } = await getMatchAndBugReport(matchId);
+      const bugReport  = await getMatchAndBugReport(matchId);
   
       // trade에 따라 BugReport 상태 업데이트
       if (trade) {
@@ -56,9 +60,7 @@ export const setBugReportStatus = async (matchId: number, trade: boolean) => {
 // 게시물 가격 조회 로직
 export const BugReportPrice = async (matchId: number): Promise<GetBugReportPriceResponse | null> => {
     try {
-        const { bugReport } = await getMatchAndBugReport(matchId);
-    
-        // 반환할 객체
+        const bugReport = await getMatchAndBugReport(matchId);
         return {
           price: bugReport.price
         };
