@@ -34,8 +34,15 @@ export const sendAlarmService = async (reportId: number, user: User) => {
       throw new Error("No user or FCM token found for this report");
     }
 
+    const fcmToken = bugReport.user.fcm_token;
+
+    // FCM 토큰 유효성 체크
+    if (typeof fcmToken !== 'string' || fcmToken.trim() === '') {
+      throw new Error("유효하지 않은 FCM token입니다.");
+    }
+
     const message = {
-      token: bugReport.user.fcm_token,
+      token: fcmToken,
       notification: {
         title: "벌레를 잡아줄 사람이 나타났어요!",
         body: `우리 동네 헌터의 정보를 빠르게 확인해 보세요`,
