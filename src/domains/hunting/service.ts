@@ -49,13 +49,14 @@ export const setBugReportStatus = async (matchId: number, trade: boolean, user:U
         data: { status: 'MATCH_CLOSED', resolved_at: new Date() }, 
       });
 
-      //채팅 강제 종료
-      try {
-        Socket.closeSession(user.id);
-        console.log('채팅 세션이 성공적으로 종료되었습니다');
-      } catch (socketError) {
-        console.error(`채팅 세션 종료 중 오류 발생: ${socketError}`);
-        throw new Error("채팅 세션 종료 중 오류가 발생했습니다")
+      // 채팅 강제 종료
+      const isClosed = Socket.closeSession(user.id);
+
+      if (isClosed) {
+        console.log(`채팅 세션 종료 완료: 사용자 ${user.id}`);
+      } else {
+        console.log(`채팅 세션 종료 실패: 사용자 ${user.id}`);
+        throw new Error("채팅 세션 종료 중 오류가 발생했습니다.");
       }
   
       console.log(`BugReport와 Match의 status가 성공적으로 업데이트 : ${matchId}`);
