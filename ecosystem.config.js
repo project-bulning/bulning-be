@@ -11,7 +11,7 @@ module.exports = {
     },
     {
       name: "bulning-development",
-      script: "npm run dev:test-server",
+      script: "./dist/src/index.js",
       autorestart: false,
       watch: false,
       env: {
