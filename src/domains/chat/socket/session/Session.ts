@@ -13,6 +13,14 @@ export default class Session {
   private readonly _ws: WebSocket;
   private readonly _user: User;
   public static userSessions: { [key: number]: Session } = {};
+  public static closeSession(userId: number) {
+    const session = Session.userSessions[userId];
+    if(session) {
+      session.close();
+      return true;
+    }
+    return false;
+  }
   private async createMessage(message: string) {
     const match = await this.getMatch() as Match;
     if(!this.isMatchOpen(match)) {
@@ -55,9 +63,14 @@ export default class Session {
       this.handleClose();
     }
   }
-  public handleClose() {
+  public close() {
     this.websocket.close();
-    delete Session.userSessions[this.user.id]; // destruction
+    if(Session.userSessions[this.user.id]) {
+      delete Session.userSessions[this.user.id];
+    }
+  }
+  public handleClose() {
+    this.close();
   }
   public readAllChats() {
     return prisma.chat.updateMany({
