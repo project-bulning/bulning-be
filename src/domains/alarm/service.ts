@@ -47,7 +47,10 @@ export const sendAlarmService = async (reportId: number, user: User) => {
         title: "벌레를 잡아줄 사람이 나타났어요!",
         body: `우리 동네 헌터의 정보를 빠르게 확인해 보세요`,
       },
-      data:{user: `${user.id}`},
+      data:{
+        type: "hunter_applied", 
+        user: `${user.id}`
+      },
     };
 
     // FCM을 통해 알림 전송
