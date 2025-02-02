@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '@/types/express';
-import {RegistrationRequestBody} from '@/domains/user/types';
+import { RegistrationRequestBody } from '@/domains/user/types';
 import { sendError } from '@/utils/response';
-import { StatusCodes } from 'http-status-codes';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import {
-  generateJwtToken,
+  generateJWT,
   getKakaoToken,
   getKakaoUserInfo, handleUserInfoInput,
-  handleUserLogin,
+  handleUserLogin, reissueAccessToken,
 } from './service';
 
 // Kakao 로그인 URL 생성 - 사용자가 로그인 버튼을 눌렀을 때 이 URL로 이동시킵니다.
@@ -21,17 +21,26 @@ export const kakaoLogin = (req: Request, res: Response): void => {
 export const kakaoCallback = async (req: Request, res: Response) => {
   const { code } = req.query;
   try {
-    const accessToken = await getKakaoToken(code as string);
-    const userInfo = await getKakaoUserInfo(accessToken);
+    const kakaoAccessToken = await getKakaoToken(code as string);
+    const userInfo = await getKakaoUserInfo(kakaoAccessToken);
     const { id: kakaoId, properties: { nickname } } = userInfo;
 
     // id 조회 시 만약 db에서 새로운 사용자일 경우 새롭게 저장
     const user = await handleUserLogin({ id: kakaoId, nickname });
 
     // JWT 토큰 생성 후 응답
-    const jwtToken = generateJwtToken(user.id, kakaoId);
+    const accessToken = generateJWT(user.id, kakaoId);
+    const refreshToken = generateJWT(user.id, kakaoId, 'refresh');
     const baseRedirectionUrl = process.env.NODE_ENV === 'production' ? process.env.REDIRECT_URL : process.env.REDIRECT_URL_DEV;
-    const redirectUrl = `${baseRedirectionUrl}/auth/login?access_token=${jwtToken}`;
+    const redirectUrl = `${baseRedirectionUrl}/auth/login?access_token=${accessToken}`;
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // HTTPS 환경에서만 전송
+      sameSite: 'strict',
+      path: '/api/refresh',
+    });
+
     res.redirect(redirectUrl as string);
 
   } catch (error) {
@@ -39,6 +48,29 @@ export const kakaoCallback = async (req: Request, res: Response) => {
     res.status(500).send('Kakao login failed');
   }
 };
+
+export const reissue = async(req: Request, res: Response) => {
+  const { refreshToken } = req.cookies;
+  const authHeader = req.headers.authorization;
+  if(! authHeader) {
+    sendError(res, ReasonPhrases.UNAUTHORIZED, StatusCodes.UNAUTHORIZED);
+    return;
+  }
+  const accessToken = authHeader.split(' ')[1];
+  if(! refreshToken || ! accessToken) {
+    sendError(res, ReasonPhrases.UNAUTHORIZED, StatusCodes.UNAUTHORIZED);
+    return;
+  }
+  try {
+    const reissuedAccessToken = reissueAccessToken(accessToken, refreshToken);
+    res.json({
+      access_token: reissuedAccessToken
+    });
+  } catch(error) {
+    console.error('Token verification faild: ', error);
+    sendError(res, '토큰 검증에 실패했습니다', StatusCodes.UNAUTHORIZED);
+  }
+}
 
 //회원가입 ,회원 정보 입력
 export const userInfo = async (

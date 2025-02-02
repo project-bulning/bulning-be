@@ -16,6 +16,7 @@ import * as http from 'node:http';
 import { route } from '@/domains/review/route';
 import { handleSocketConnection } from '@/domains/chat/socket';
 import { huntingRoute } from './domains/hunting/route';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const DEV_PORT = 3000;
@@ -28,6 +29,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(cors({
   origin: '*'
 }));
+app.use(cookieParser());
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   if (req.path.startsWith('/api')) {
