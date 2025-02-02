@@ -15,7 +15,7 @@ import { WebSocketServer } from 'ws';
 import * as http from 'node:http';
 import { route } from '@/domains/review/route';
 import { handleSocketConnection } from '@/domains/chat/socket';
-import { huntingRoute } from './domains/hunting/route';
+import { huntingRoute } from '@/domains/hunting/route';
 import cookieParser from 'cookie-parser';
 
 const app = express();
