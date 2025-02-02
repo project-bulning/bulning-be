@@ -28,7 +28,7 @@ export const modifyBugReportStatus = async(req: AuthenticatedRequest<TradeAccept
   const trade = req.body.trade;
 
   try {
-    await setBugReportStatus(Number(matchId), trade);
+    await setBugReportStatus(Number(matchId), trade, req.user);
     res.status(StatusCodes.ACCEPTED).json({ message: 'bugReport 상태가 변경되었습니다.' });
   } catch(e) {
     console.error(e);

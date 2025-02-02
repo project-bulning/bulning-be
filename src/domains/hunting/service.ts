@@ -1,5 +1,7 @@
 import {GetBugReportPriceResponse} from '@/domains/hunting/types';
 import prisma from '@/utils/database';
+import Socket from '@/domains/chat/socket/session/Session';
+import { User } from '@prisma/client';
 
 // 공통 로직: matchId로 BugReport 조회
 const getMatchAndBugReport = async (matchId: number) => {
@@ -21,7 +23,7 @@ const getMatchAndBugReport = async (matchId: number) => {
 
   
 //거래 종료, 거래 취소
-export const setBugReportStatus = async (matchId: number, trade: boolean) => {
+export const setBugReportStatus = async (matchId: number, trade: boolean, user:User) => {
     try {
       const bugReport  = await getMatchAndBugReport(matchId);
   
@@ -47,7 +49,14 @@ export const setBugReportStatus = async (matchId: number, trade: boolean) => {
         data: { status: 'MATCH_CLOSED', resolved_at: new Date() }, 
       });
 
-      //채팅 강제 종료?
+      //채팅 강제 종료
+      try {
+        Socket.closeSession(user.id);
+        console.log('채팅 세션이 성공적으로 종료되었습니다');
+      } catch (socketError) {
+        console.error(`채팅 세션 종료 중 오류 발생: ${socketError}`);
+        throw new Error("채팅 세션 종료 중 오류가 발생했습니다")
+      }
   
       console.log(`BugReport와 Match의 status가 성공적으로 업데이트 : ${matchId}`);
     } catch (error) {
