@@ -1,11 +1,10 @@
 import type { Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import type { AuthenticatedRequest } from '@/types/express';
 import prisma from '@/utils/database';
 import { User } from '@prisma/client';
 import { sendError } from '@/utils/response';
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
-import { ExtendedJWTPayload } from '@/domains/auth/types';
+import { verifyJWT } from '@/utils/auth';
 
 export const authenticateToken = async (
   req: AuthenticatedRequest,
@@ -25,18 +24,8 @@ export const authenticateToken = async (
     return;
   }
 
-  const JWT_SECRET = process.env.JWT_SECRET;
-  if (!JWT_SECRET) {
-    throw new Error('JWT_SECRET must be defined in environment variables');
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as ExtendedJWTPayload | string;
-
-    if (typeof decoded !== 'object' || !decoded.id) {
-      sendError(res, '토큰 구조가 올바르지 않습니다.', StatusCodes.UNAUTHORIZED);
-      return;
-    }
+    const decoded = verifyJWT(token);
 
     req.user = await prisma.user.findUnique({
       where: {
@@ -45,7 +34,7 @@ export const authenticateToken = async (
     }) as User;
     next();
   } catch (error) {
-    console.error('Token verification failed:', error);
+    console.error('Token verification failed: ', error);
     sendError(res, '토큰 검증에 실패했습니다.', StatusCodes.UNAUTHORIZED);
     return;
   }

@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { ExtendedJWTPayload } from '@/domains/auth/types';
 import jwt from 'jsonwebtoken';
-import { KaKaoUserDTO, RegistrationRequestBody } from '@/domains/user/types';
+import type { KaKaoUserDTO, RegistrationRequestBody } from '@/domains/user/types';
 import prisma from '@/utils/database';
 import type { User } from '@prisma/client';
 import { registrationSchema } from '@/domains/user/validator';
 import { z } from 'zod';
+import { getJWTSecret, verifyJWT } from '@/utils/auth';
 
 // 카카오 서버에 액세스 토큰 요청
 export const getKakaoToken = async (code: string): Promise<string> => {
@@ -32,6 +33,20 @@ export const getKakaoToken = async (code: string): Promise<string> => {
   }
 };
 
+export const reissueAccessToken = (accessToken: string, refreshToken: string): string => {
+  const decodedRefresh = verifyJWT(refreshToken, 'refresh');
+  const decodedAccess = verifyJWT(accessToken, 'access', true);
+  if(decodedRefresh.id !== decodedAccess.id || decodedRefresh.kakao_id !== decodedAccess.kakao_id) {
+    throw new Error('액세스 토큰과 리프레쉬 토큰의 정보가 일치하지 않습니다.');
+  }
+  const SECRET = getJWTSecret('access');
+  if(! SECRET) {
+    throw new Error('액세스 토큰 시크릿이 정의되지 않았습니다.');
+  }
+  // TODO: 액세스 토큰이 banned 테이블에 있는지 확인 (추후 구현)
+  return generateJWT(decodedAccess.id, decodedAccess.kakao_id);
+}
+
 // 액세스 토큰을 사용하여 사용자 정보 요청
 export const getKakaoUserInfo = async (accessToken: string): Promise<any> => {
     try {
@@ -46,12 +61,16 @@ export const getKakaoUserInfo = async (accessToken: string): Promise<any> => {
     }
 };
 
-export const generateJwtToken = (id: number, kakaoId: string): string => {
+export const generateJWT = (id: number, kakaoId: string, tokenType: 'refresh' | 'access' = 'access'): string => {
   const payload: ExtendedJWTPayload = {
     id, kakao_id: kakaoId
   };
-  return jwt.sign(payload, process.env.JWT_SECRET as string, {
-    expiresIn: '1h',
+  const secret = getJWTSecret(tokenType);
+  if(! secret) {
+    throw new Error('토큰 시크릿 값이 정의되지 않았습니다.');
+  }
+  return jwt.sign(payload, secret, {
+    expiresIn: tokenType === 'access' ? '1h' : '30d',
   });
 };
 

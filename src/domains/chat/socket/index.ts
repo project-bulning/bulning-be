@@ -16,12 +16,12 @@ export const handleSocketConnection = async(ws: WebSocket, req: http.IncomingMes
     }));
     return;
   }
-  const JWT_SECRET = process.env.JWT_SECRET;
-  if (!JWT_SECRET) {
-    throw new Error('JWT_SECRET must be defined in environment variables');
+  const ACCESS_SECRET = process.env.ACCESS_SECRET;
+  if (!ACCESS_SECRET) {
+    throw new Error('ACCESS_SECRET must be defined in environment variables');
   }
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as ExtendedJWTPayload | string;
+    const decoded = jwt.verify(token, ACCESS_SECRET) as ExtendedJWTPayload | string;
     if (typeof decoded !== 'object' || !decoded.id) {
       closeSocket(ws, '토큰이 올바르지 않습니다.');
       return;
