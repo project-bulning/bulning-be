@@ -1,6 +1,7 @@
 import { User } from '@prisma/client';
 import prisma from '@/utils/database';
 import { messaging } from '@/utils/firebase';
+import {MatchStatusResponseDto} from '@/domains/match/types';
 
 export const getMatchByUser = (user: User) => {
   return prisma.match.findFirst({
@@ -115,4 +116,41 @@ export const createMatch = async (user: User, reportID: number): Promise<void> =
       status: 'PENDING',
     },
   });
+};
+
+export const getMatchStatusService = async (user: User): Promise<MatchStatusResponseDto | null> => {
+  // 헬피(PENDING 상태) - 누군가 나타남
+  const helperMatch = await prisma.match.findFirst({
+    where: {
+      helper_id: user.id,
+      status: "PENDING",
+    },
+  });
+
+  if (helperMatch) {
+    return {
+      //role: "helpee",
+      match: true,
+      matchId: helperMatch.id,
+      hunterId: helperMatch.hunter_id,
+    };
+  }
+
+  // // 헌터(MATCH_REJECTED 상태)
+  // const hunterMatch = await prisma.match.findFirst({
+  //   where: {
+  //     hunter_id: user.id,
+  //     status: "MATCH_REJECTED",
+  //   },
+  // });
+
+  // if (hunterMatch) {
+  //   return {
+  //     role: "hunter",
+  //     match: false,
+  //     matchId:hunterMatch.id
+  //   };
+  // }
+
+  return null; // 매칭된 정보가 없음
 };
