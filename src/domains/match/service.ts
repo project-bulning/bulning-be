@@ -52,8 +52,8 @@ export const setMatchStatus = async (matchId: number, accept: boolean) => {
   const message = {
     token: fcmToken,
     notification: {
-      title: accept ? '수락' : '거절',
-      //body: accept ? 'hunter_accepted' : 'hunter_rejected',
+      title: accept ? '핼피가 사냥을 수락했어요' : '핼피가 사냥을 거절했어요',
+      body: accept ? '1대1로 대화하며 빠르게 도움을 제공하세요' : 'hunter_rejected',
     },
     data: {
       type: accept ? 'hunter_accepted' : 'hunter_rejected',
