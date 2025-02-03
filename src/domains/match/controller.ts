@@ -12,10 +12,14 @@ export const modifyMatch = async(req: AuthenticatedRequest<MatchAcceptParams, Ma
   if(typeof req.body.accept == 'undefined' || !req.params.matchId) {
     return sendError(res, '잘못된 요청입니다.');
   }
+  const {matchId} = req.params;
+  if (isNaN(Number(matchId))){
+    return sendError(res, '유효한 matchId가 필요합니다.');
+  }
   const accept = req.body.accept;
   try {
-    await setMatchStatus(req.params.matchId, accept);
-    res.status(StatusCodes.ACCEPTED);
+    await setMatchStatus(Number(matchId), accept);
+    res.status(StatusCodes.ACCEPTED).json({ message: '매치 상태가 변경되었습니다.' });
   } catch(e) {
     console.error(e);
     sendError(res, '매치 상태 변경에 실패했습니다.', StatusCodes.INTERNAL_SERVER_ERROR);

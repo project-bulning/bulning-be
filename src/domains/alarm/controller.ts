@@ -34,7 +34,7 @@ export const sendAlarmController = async (
   if(! req.user) {
     return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
 }
-  const reportId = req.params;
+  const {reportId} = req.params;
 
   if (!reportId || isNaN(Number(reportId))){
     return sendError(res, '유효한 report ID가 필요합니다.');
@@ -60,7 +60,7 @@ export const hunterInfoController = async(
     return sendError(res, '유효한 hunter ID가 필요합니다.');
   }
 
-  const hunterInfo = await hunterInfoService(Number(hunterId));
+  const hunterInfo = await hunterInfoService(Number(hunterId),req.user);
   if (!hunterInfo) {
     return sendError(res, '해당 ID의 헌터 정보를 찾을 수 없습니다.');
   }

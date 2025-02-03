@@ -34,14 +34,23 @@ export const sendAlarmService = async (reportId: number, user: User) => {
       throw new Error("No user or FCM token found for this report");
     }
 
+    const fcmToken = bugReport.user.fcm_token;
+
+    // FCM 토큰 유효성 체크
+    if (typeof fcmToken !== 'string' || fcmToken.trim() === '') {
+      throw new Error("유효하지 않은 FCM token입니다.");
+    }
+
     const message = {
+      token: fcmToken,
       notification: {
-        title: "헌터의 지원",
-        body: JSON.stringify({
-          user: `${user.id}`,
-          message: `${user.name}님이 사냥을 지원하셨습니다. 수락하시겠습니까?`,
-        })},
-      token: bugReport.user.fcm_token,
+        title: "벌레를 잡아줄 사람이 나타났어요!",
+        body: `우리 동네 헌터의 정보를 빠르게 확인해 보세요`,
+      },
+      data:{
+        type: "hunter_applied", 
+        user: `${user.id}`
+      },
     };
 
     // FCM을 통해 알림 전송
@@ -55,7 +64,7 @@ export const sendAlarmService = async (reportId: number, user: User) => {
 };
 
 //헌터 정보 보내기
-export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoResponse | null> => {
+export const hunterInfoService =  async (hunterId: number,  user: User): Promise<HunterInfoResponse | null> => {
 
   //ID로 헌터 찾기기
   const hunter = await prisma.user.findUnique({
@@ -85,6 +94,20 @@ export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoRe
     created_at: review.created_at || new Date(),
   }));
 
+  // Match 테이블에서 헌터와 연결된 PENDING 상태의 Match ID 찾기
+  const match = await prisma.match.findFirst({
+    where: {
+      helper_id: user.id,
+      hunter_id: hunterId,
+      status: 'PENDING',
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const matchId = match ? match.id : 0;
+
 
   //응답
   return {
@@ -96,6 +119,7 @@ export const hunterInfoService =  async (hunterId: number): Promise<HunterInfoRe
     avg_score: avgScore,
     trade_count: userReviews.length,
     user_reviews: userReviewsResponse,
-    pr_memo: hunter.pr_memo || ''
+    pr_memo: hunter.pr_memo || '',
+    match_id : matchId
   };
 }

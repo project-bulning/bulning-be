@@ -1,5 +1,6 @@
 import { User } from '@prisma/client';
 import prisma from '@/utils/database';
+import { messaging } from '@/utils/firebase';
 
 export const getMatchByUser = (user: User) => {
   return prisma.match.findFirst({
@@ -13,7 +14,63 @@ export const getMatchByUser = (user: User) => {
   });
 }
 
-export const setMatchStatus = (matchId: number, accept: boolean) => {
+export const setMatchStatus = async (matchId: number, accept: boolean) => {
+  // accept가 false일 때 bugReport status를 WAITING_MATCH로 바꾸기
+  const match = await prisma.match.findUnique({
+    where: {
+      id: matchId,
+    },
+    include: {
+      bug_report: true,
+      hunter: true,
+    },
+  });
+
+  if (!match) {
+    throw new Error("해당 Match를 찾을 수 없습니다.");
+  }
+
+  if (!accept && match.bug_report) {
+    await prisma.bugReport.update({
+      data: {
+        status: 'WAITING_MATCH',
+      },
+      where: {
+        id: match.bug_report.id,
+      },
+    });
+  }
+
+  // FCM
+  const fcmToken = match?.hunter.fcm_token;
+
+  if (typeof fcmToken !== 'string' || fcmToken.trim() === '') {
+    throw new Error("유효하지 않은 FCM token입니다.");
+  }
+
+  // 알림 메시지 설정
+  const message = {
+    token: fcmToken,
+    notification: {
+      title: accept ? '수락' : '거절',
+      //body: accept ? 'hunter_accepted' : 'hunter_rejected',
+    },
+    data: {
+      type: accept ? 'hunter_accepted' : 'hunter_rejected',
+      hunter: `${match.hunter.id}`,
+      helpee: `${match.helper_id}`,
+    },
+  };
+
+  // 알림 전송
+  try {
+    const response = await messaging.send(message);
+    console.log('FCM 메시지가 성공적으로 전송되었습니다:', response);
+  } catch (error) {
+    console.error('FCM 메시지 전송 중 오류 발생:', error);
+  }
+
+  //accept에 따라 Match status를 바꾸기
   return prisma.match.update({
     data: {
       status: accept ? 'MATCH_ACCEPTED' : 'MATCH_REJECTED',
@@ -50,4 +107,12 @@ export const createMatch = async (user: User, reportID: number): Promise<void> =
       hunter: true, 
     },
   });  
+
+  // BugReport의 status를 PENDING으로 업데이트
+  await prisma.bugReport.update({
+    where: { id: reportID },
+    data: {
+      status: 'PENDING',
+    },
+  });
 };

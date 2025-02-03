@@ -15,6 +15,8 @@ import { WebSocketServer } from 'ws';
 import * as http from 'node:http';
 import { route } from '@/domains/review/route';
 import { handleSocketConnection } from '@/domains/chat/socket';
+import { huntingRoute } from '@/domains/hunting/route';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const DEV_PORT = 3000;
@@ -27,6 +29,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(cors({
   origin: '*'
 }));
+app.use(cookieParser());
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   if (req.path.startsWith('/api')) {
@@ -40,6 +43,7 @@ app.use(API_PREFIX, bugReportRoute);
 app.use(API_PREFIX, userRoute);
 app.use(API_PREFIX, matchRoute);
 app.use(API_PREFIX, alarmRoute);
+app.use(API_PREFIX, huntingRoute);
 app.use(API_PREFIX, route);
 
 app.get('*', (req: Request, res: Response) => {
