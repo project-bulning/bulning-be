@@ -139,6 +139,31 @@ export const updateUserInfo = (user: User, updatedData: Partial<User>): Promise<
   });
 };
 
+//사용자 로그아웃
+export const kakaoLogoutService = async (accessToken: string): Promise<boolean> => {
+  try {
+    await axios.post(
+      'https://kapi.kakao.com/v1/user/logout',
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
+    console.log('카카오 로그아웃 성공');
+    return true;
+  } catch (error: any) {
+    if (error.response) {
+      console.error('카카오 로그아웃 실패:', error.response.status, error.response.data);
+    } else {
+      console.error('카카오 로그아웃 요청 실패:', error.message);
+    }
+    return false;
+  }
+};
+
 //사용자 탈퇴
 export const signoutUser = async (user: User): Promise<void> => {
   const userId = user.id;
