@@ -9,8 +9,30 @@ import {
 } from '@/domains/hunting/types';
 import {
     BugReportPrice,
-    setBugReportStatus
+    setBugReportStatus,
+    tradeAlarmService
 } from '@/domains/hunting/service';
+
+export const tradeAlarm = async (
+  req: AuthenticatedRequest<{matchId:string},{}>,
+  res: Response
+) => {
+  if(! req.user) {
+    return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
+}
+  const {matchId} = req.params;
+
+  if (!matchId || isNaN(Number(matchId))){
+    return sendError(res, '유효한 match ID가 필요합니다.');
+  }
+
+  try {
+    await tradeAlarmService(Number(matchId),req.user);
+    res.status(200).json({ message: "거래 완료 알림이 전송되었습니다다" });
+  } catch (error) {
+    return sendError(res, '알람 전송 중 오류가 발생했습니다.',500);
+  }
+};
 
 //거래 취소, 거래 마치기 -> bugReport 상태 변경,채팅 종료
 export const modifyBugReportStatus = async(req: AuthenticatedRequest<TradeAcceptParams, TradeAcceptBody>, res: Response) => {
@@ -34,7 +56,7 @@ export const modifyBugReportStatus = async(req: AuthenticatedRequest<TradeAccept
 
     // 모든 과정이 정상적으로 처리된 경우
     if (bugReportUpdated && matchUpdated && chatClosed) {
-      return res.status(StatusCodes.ACCEPTED).json({
+      res.status(StatusCodes.ACCEPTED).json({
         message: 'bugReport 상태가 변경되었고, 채팅 세션이 종료되었습니다.',
         bugReportUpdated,
         matchUpdated,
@@ -43,7 +65,7 @@ export const modifyBugReportStatus = async(req: AuthenticatedRequest<TradeAccept
     }
 
     // 일부 과정이 실패한 경우
-    return res.status(StatusCodes.OK).json({
+    res.status(StatusCodes.OK).json({
       message: 'bugReport 상태 변경 시 일부 과정이 실패했습니다.',
       bugReportUpdated,
       matchUpdated,

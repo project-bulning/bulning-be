@@ -2,6 +2,7 @@ import {GetBugReportPriceResponse} from '@/domains/hunting/types';
 import prisma from '@/utils/database';
 import Socket from '@/domains/chat/socket/session/Session';
 import { User } from '@prisma/client';
+import { messaging } from '@/utils/firebase';
 
 // 공통 로직: matchId로 BugReport 조회
 const getMatchAndBugReport = async (matchId: number) => {
@@ -20,7 +21,56 @@ const getMatchAndBugReport = async (matchId: number) => {
   return bugReport_matchId;
 }
 
+export const tradeAlarmService = async (matchId: number, user: User) => {
+  try {
+    // matchId를 이용하여 Match 테이블에서 매칭 정보 조회
+    const match = await prisma.match.findUnique({
+      where: { id: matchId },
+      include: {
+        helper: true,
+        hunter: true,
+      },
+    });
 
+    if (!match) {
+      throw new Error("해당 Match를 찾을 수 없습니다.");
+    }
+
+    let fcmToken: string | null = null;
+
+    // User가 hunter이면 helper에게 알림 전송
+    if (user.id === match.hunter_id) {
+      fcmToken = match.helper.fcm_token;
+    }
+    // User가 helper이면 hunter에게 알림 전송
+    else if (user.id === match.helper_id) {
+      fcmToken = match.hunter.fcm_token;
+    } else {
+      throw new Error("유효하지 않은 사용자입니다.");
+    }
+
+    // FCM 토큰 유효성 체크
+    if (typeof fcmToken !== 'string' || fcmToken.trim() === '') {
+      throw new Error("유효하지 않은 FCM token입니다.");
+    }
+
+    const message = {
+      token: fcmToken,
+      data:{
+        type: "trade_completed", 
+        matchId: `${matchId}`
+      },
+    };
+
+    // FCM을 통해 알림 전송
+    await messaging.send(message);
+
+    console.log(`Notification sent to user with ID: ${user.id}`);
+  } catch (error) {
+    console.error("Error in sendAlarmService:", error);
+    throw new Error("알림 전송 중 오류가 발생했습니다");
+  }
+};
   
 //거래 종료, 거래 취소
 export const setBugReportStatus = async (matchId: number, trade: boolean, user: User) => {
