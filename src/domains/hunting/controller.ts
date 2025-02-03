@@ -12,29 +12,50 @@ import {
     setBugReportStatus
 } from '@/domains/hunting/service';
 
-//거래 취소, 거래 마치기 -> bugReport 상태 변경
-export const modifyBugReportStatus = async(req: AuthenticatedRequest<TradeAcceptParams,TradeAcceptBody >, res: Response) => {
-  if(! req.user) {
+//거래 취소, 거래 마치기 -> bugReport 상태 변경,채팅 종료
+export const modifyBugReportStatus = async(req: AuthenticatedRequest<TradeAcceptParams, TradeAcceptBody>, res: Response) => {
+  if (!req.user) {
     return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
   }
-  if(typeof req.body.trade == 'undefined' || !req.params.matchId) {
+  
+  if (typeof req.body.trade === 'undefined' || !req.params.matchId) {
     return sendError(res, '잘못된 요청입니다.');
   }
 
-  const {matchId} = req.params;
-  if (isNaN(Number(matchId))){
+  const { matchId } = req.params;
+  if (isNaN(Number(matchId))) {
     return sendError(res, '유효한 matchId가 필요합니다.');
   }
+
   const trade = req.body.trade;
 
   try {
-    await setBugReportStatus(Number(matchId), trade);
-    res.status(StatusCodes.ACCEPTED).json({ message: 'bugReport 상태가 변경되었습니다.' });
-  } catch(e) {
+    const { bugReportUpdated, matchUpdated, chatClosed } = await setBugReportStatus(Number(matchId), trade, req.user);
+
+    // 모든 과정이 정상적으로 처리된 경우
+    if (bugReportUpdated && matchUpdated && chatClosed) {
+      return res.status(StatusCodes.ACCEPTED).json({
+        message: 'bugReport 상태가 변경되었고, 채팅 세션이 종료되었습니다.',
+        bugReportUpdated,
+        matchUpdated,
+        chatClosed
+      });
+    }
+
+    // 일부 과정이 실패한 경우
+    return res.status(StatusCodes.OK).json({
+      message: 'bugReport 상태 변경 시 일부 과정이 실패했습니다.',
+      bugReportUpdated,
+      matchUpdated,
+      chatClosed
+    });
+
+  } catch (e) {
     console.error(e);
-    sendError(res, 'bugReport 상태 변경에 실패했습니다.', StatusCodes.INTERNAL_SERVER_ERROR);
+    return sendError(res, 'bugReport 상태 변경에 실패했습니다.', StatusCodes.INTERNAL_SERVER_ERROR);
   }
-}
+};
+
 
 // 사냥 가격 조회
 export const getBugReportPrice = async (

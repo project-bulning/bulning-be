@@ -1,5 +1,7 @@
 import {GetBugReportPriceResponse} from '@/domains/hunting/types';
 import prisma from '@/utils/database';
+import Socket from '@/domains/chat/socket/session/Session';
+import { User } from '@prisma/client';
 
 // 공통 로직: matchId로 BugReport 조회
 const getMatchAndBugReport = async (matchId: number) => {
@@ -21,40 +23,44 @@ const getMatchAndBugReport = async (matchId: number) => {
 
   
 //거래 종료, 거래 취소
-export const setBugReportStatus = async (matchId: number, trade: boolean) => {
-    try {
-      const bugReport  = await getMatchAndBugReport(matchId);
-  
-      // trade에 따라 BugReport 상태 업데이트
-      if (trade) {
-        // trade가 true (거래 종료)
-        await prisma.bugReport.update({
-          where: { id: bugReport.id },
-          data: { status: 'COMPLETED' }, 
-        });
+export const setBugReportStatus = async (matchId: number, trade: boolean, user: User) => {
+  try {
+    const bugReport = await getMatchAndBugReport(matchId);
 
-      } else {
-        // trade가 false(거래 취소)
-        await prisma.bugReport.update({
-          where: { id: bugReport.id },
-          data: { status: 'WAITING_MATCH' }, 
-        });
-      }
+    let bugReportUpdated = false;
+    let matchUpdated = false;
+    let chatClosed = false;
 
-      //Match 상태 업데이트
-      await prisma.match.update({
-        where: { id: matchId },
-        data: { status: 'MATCH_CLOSED', resolved_at: new Date() }, 
-      });
+    // trade에 따라 BugReport 상태 업데이트
+    const updatedBugReport = await prisma.bugReport.update({
+      where: { id: bugReport.id },
+      data: { status: trade ? 'COMPLETED' : 'WAITING_MATCH' }, 
+    });
 
-      //채팅 강제 종료?
-  
-      console.log(`BugReport와 Match의 status가 성공적으로 업데이트 : ${matchId}`);
-    } catch (error) {
-      console.error("Error in setBugReportStatus:", error);
-      throw new Error("BugReport 및 Match 상태 업데이트 중 오류가 발생했습니다.");
+    if (updatedBugReport) {
+      bugReportUpdated = true;
     }
-  };
+
+    // Match 상태 업데이트
+    const updatedMatch = await prisma.match.update({
+      where: { id: matchId },
+      data: { status: 'MATCH_CLOSED', resolved_at: new Date() }, 
+    });
+
+    if (updatedMatch) {
+      matchUpdated = true;
+    }
+
+    // 채팅 강제 종료
+    chatClosed = Socket.closeSession(user.id);
+
+    return { bugReportUpdated, matchUpdated, chatClosed };
+  } catch (error) {
+    console.error("Error in setBugReportStatus:", error);
+    return { bugReportUpdated: false, matchUpdated: false, chatClosed: false };
+  }
+};
+
   
   
 // 게시물 가격 조회 로직
