@@ -12,6 +12,7 @@ export interface RegistrationRequestBody {
 }
 
 export interface HunterInfoResponse {
+  img_url: string;
   name: string;
   location: string;
   location_detail: string;

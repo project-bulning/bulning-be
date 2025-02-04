@@ -111,6 +111,7 @@ export const hunterInfoService =  async (hunterId: number,  user: User): Promise
 
   //응답
   return {
+    img_url: hunter.img_url || '',
     name: hunter.name || '',
     location: hunter.location || '',
     location_detail: hunter.location_detail || '',
