@@ -7,8 +7,9 @@ export type MatchAcceptParams = {
 }
 
 export interface MatchStatusResponseDto {
-  //role?: "helpee" | "hunter" ;
-  match: boolean;
+  role: "helpee" | "hunter" ;
+  status: MatchStatus;
   matchId: number;
-  hunterId: number;
+  hunterId?: number;
+  helpeeId?: number;
 }

@@ -129,28 +129,29 @@ export const getMatchStatusService = async (user: User): Promise<MatchStatusResp
 
   if (helperMatch) {
     return {
-      //role: "helpee",
-      match: true,
+      role: "helpee",
+      status: helperMatch.status,
       matchId: helperMatch.id,
       hunterId: helperMatch.hunter_id,
     };
   }
 
-  // // 헌터(MATCH_REJECTED 상태)
-  // const hunterMatch = await prisma.match.findFirst({
-  //   where: {
-  //     hunter_id: user.id,
-  //     status: "MATCH_REJECTED",
-  //   },
-  // });
+  // 헌터(MATCH_ACCEPTED 상태) - 핼피가 수락함
+  const hunterMatch = await prisma.match.findFirst({
+    where: {
+      hunter_id: user.id,
+      status: "MATCH_ACCEPTED",
+    },
+  });
 
-  // if (hunterMatch) {
-  //   return {
-  //     role: "hunter",
-  //     match: false,
-  //     matchId:hunterMatch.id
-  //   };
-  // }
+  if (hunterMatch) {
+    return {
+      role: "hunter",
+      status: hunterMatch.status,
+      matchId:hunterMatch.id,
+      helpeeId:hunterMatch.helper_id
+    };
+  }
 
   return null; // 매칭된 정보가 없음
 };
