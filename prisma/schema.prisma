@@ -88,8 +88,6 @@ model User {
   phone_number    String?      @db.VarChar(20)
   location        String?      @db.VarChar(255)
   gender          String?      @db.VarChar(50)
-  role            String?      @db.VarChar(50)
-  hunt_count      Int?
   age_group       String?      @db.VarChar(50)
   created_at      DateTime?    @default(now()) @db.Timestamp(0)
   updated_at      DateTime?    @default(now()) @db.Timestamp(0)
@@ -97,6 +95,8 @@ model User {
   pr_memo         String?      @db.Text
   location_detail String?      @db.VarChar(225)
   img_url         String?      @db.VarChar(255)
+  latitude        Float?
+  longitude       Float?
   bug_reports     BugReport[]
   issued_chats    Chat[]       @relation("User_Chat_Issued")
   received_chats  Chat[]       @relation("User_Chat_Received")
