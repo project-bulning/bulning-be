@@ -70,7 +70,7 @@ export const generateJWT = (id: number, kakaoId: string, tokenType: 'refresh' | 
     throw new Error('토큰 시크릿 값이 정의되지 않았습니다.');
   }
   return jwt.sign(payload, secret, {
-    expiresIn: tokenType === 'access' ? '1h' : '30d',
+    expiresIn: tokenType === 'access' ? '99h' : '30d',
   });
 };
 
