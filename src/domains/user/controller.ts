@@ -1,10 +1,13 @@
 import { AuthenticatedRequest } from '@/types/express';
 import { sendError } from '@/utils/response';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Match, User } from '@prisma/client';
 import { getMatchByUser, createMatch } from '@/domains/match/service';
 import { signoutUser, updateUserInfo } from '@/domains/auth/service';
+import { CreateHunterImageResponse } from '@/domains/user/types';
+import { uploadToS3 } from '@/utils/upload';
+
 //회원 정보 조회
 export const getMyInfo = async(req: AuthenticatedRequest, res: Response) => {
   if(! req.user) {
@@ -72,5 +75,21 @@ export const signoutMyInfo = async(req: AuthenticatedRequest, res: Response) => 
     } else {
       sendError(res, '회원 탈퇴 처리 중 오류가 발생했습니다.', StatusCodes.INTERNAL_SERVER_ERROR);
     }
+  }
+}
+
+// 헌터 사진 입력
+export const uploadHunterImage = async (req: Request, res: Response<CreateHunterImageResponse>) => {
+  if(! req.file) {
+    return sendError(res, '파일이 업로드되지 않았습니다.');
+  }
+  try {
+    const url = await uploadToS3(req.file);
+    res.json({
+      image_url: url,
+    });
+  } catch(e) {
+    console.error(e);
+    return sendError(res, '파일 업로드에 실패했습니다.');
   }
 }

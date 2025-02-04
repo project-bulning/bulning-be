@@ -23,3 +23,7 @@ export interface HunterInfoResponse {
   pr_memo: string;
   match_id:number;
 }
+
+export interface CreateHunterImageResponse {
+  image_url: string;
+}
