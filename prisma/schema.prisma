@@ -96,6 +96,7 @@ model User {
   fcm_token       String?      @db.VarChar(255)
   pr_memo         String?      @db.Text
   location_detail String?      @db.VarChar(225)
+  img_url         String?      @db.VarChar(255)
   bug_reports     BugReport[]
   issued_chats    Chat[]       @relation("User_Chat_Issued")
   received_chats  Chat[]       @relation("User_Chat_Received")
