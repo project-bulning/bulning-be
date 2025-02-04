@@ -10,12 +10,13 @@ import prisma from '@/utils/database';
 import { differenceInMinutes, format } from 'date-fns';
 import { isValidS3Url } from '@/utils/upload';
 import { BugReportCreateInputSchema } from '../../../prisma/generated/zod';
+import { messaging } from '@/utils/firebase';
 
 export const getAllBugReports = async (
   currentLatitude: number,
   currentLongitude: number
 ): Promise<GetBugReportsResponse> => {
-  //현재 위도 경도로 거리 비교 후 가까운 순으로 정렬
+  //현재 위도 경도로 거리 비교 후 가까운 순으로 정렬 - 4km
   const selectQuery: Prisma.Sql = Prisma.sql`
     SELECT
       id,
@@ -32,7 +33,7 @@ export const getAllBugReports = async (
       ) AS distance
     FROM BugReport
     WHERE status = 'WAITING_MATCH'
-    HAVING distance <= 5000
+    HAVING distance <= 4000
     ORDER BY distance ASC;
   `;
 
@@ -142,7 +143,49 @@ export const createBugReport = async (data: CreateBugReportRequestBody, user: Us
     },
   }
   BugReportCreateInputSchema.parse(creationInput);
-  return prisma.bugReport.create({
+  const bugReport = await prisma.bugReport.create({
     data: creationInput,
   });
+
+  // 반경 4km 이내에 있는 사용자 찾아서 알림 보내기
+  const { latitude, longitude } = bugReport;
+  const nearbyUsers = await prisma.$queryRaw<
+    { id: number; fcm_token: string | null }[]
+  >(
+    Prisma.sql`
+    SELECT id, fcm_token
+    FROM User
+    WHERE fcm_token IS NOT NULL
+    AND ST_DISTANCE_SPHERE(
+      POINT(longitude, latitude),
+      POINT(${longitude}, ${latitude})
+    ) <= 4000;
+  `
+  );
+
+  //  FCM 토큰 리스트 추출
+  const fcmTokens = nearbyUsers
+    .map((user) => user.fcm_token)
+    .filter((token): token is string => token !== null);
+
+  // FCM 알림 전송
+  if (fcmTokens.length > 0) {
+    const message = {
+      tokens: fcmTokens,
+      notification: {
+        title: "우리 동네에 벌레가 나타났어요!",
+        body: `빠르게 정보를 확인하고 ${bugReport.price}원을 얻어보세요`,
+      },
+      data:{
+        type: "help_posted", 
+        bugtrport_id: `${bugReport.id}`
+      },
+    };
+    
+    // FCM을 통해 알림 전송
+    await messaging.sendEachForMulticast(message)
+    console.log("핼피 포스트 알림 전송 완료");
+
+    return bugReport;
+  }
 };
