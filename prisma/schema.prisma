@@ -69,13 +69,14 @@ model Match {
 }
 
 model UserReview {
-  id          Int       @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   user_id     Int
   score       Int?
   merit       Json?
-  review_note String?   @db.Text
-  created_at  DateTime? @default(now()) @db.Timestamp(0)
-  user        User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_reviews_user_fk")
+  review_note String?          @db.Text
+  created_at  DateTime?        @default(now()) @db.Timestamp(0)
+  role        UserReview_role?
+  user        User             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_reviews_user_fk")
 
   @@index([user_id], map: "user_reviews_user_fk")
 }
@@ -121,4 +122,9 @@ enum BugReportStatus {
   WAITING_MATCH
   PENDING
   COMPLETED
+}
+
+enum UserReview_role {
+  HUNTER
+  HELPEE
 }

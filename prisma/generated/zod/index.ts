@@ -62,7 +62,7 @@ export const ChatScalarFieldEnumSchema = z.enum(['id','match_id','status','creat
 
 export const MatchScalarFieldEnumSchema = z.enum(['id','bug_report_id','helper_id','hunter_id','status','created_at','resolved_at']);
 
-export const UserReviewScalarFieldEnumSchema = z.enum(['id','user_id','score','merit','review_note','created_at']);
+export const UserReviewScalarFieldEnumSchema = z.enum(['id','user_id','score','merit','review_note','created_at','role']);
 
 export const UserScalarFieldEnumSchema = z.enum(['id','kakao_id','name','nickname','phone_number','location','gender','age_group','created_at','updated_at','fcm_token','pr_memo','location_detail','img_url','latitude','longitude']);
 
@@ -85,6 +85,10 @@ export type MatchStatusType = `${z.infer<typeof MatchStatusSchema>}`
 export const BugReportStatusSchema = z.enum(['WAITING_MATCH','PENDING','COMPLETED']);
 
 export type BugReportStatusType = `${z.infer<typeof BugReportStatusSchema>}`
+
+export const UserReview_roleSchema = z.enum(['HUNTER','HELPEE']);
+
+export type UserReview_roleType = `${z.infer<typeof UserReview_roleSchema>}`
 
 /////////////////////////////////////////
 // MODELS
@@ -151,6 +155,7 @@ export type Match = z.infer<typeof MatchSchema>
 /////////////////////////////////////////
 
 export const UserReviewSchema = z.object({
+  role: UserReview_roleSchema.nullable(),
   id: z.number().int(),
   user_id: z.number().int(),
   score: z.number().int().nullable(),
@@ -318,6 +323,7 @@ export const UserReviewSelectSchema: z.ZodType<Prisma.UserReviewSelect> = z.obje
   merit: z.boolean().optional(),
   review_note: z.boolean().optional(),
   created_at: z.boolean().optional(),
+  role: z.boolean().optional(),
   user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
 }).strict()
 
@@ -661,6 +667,7 @@ export const UserReviewWhereInputSchema: z.ZodType<Prisma.UserReviewWhereInput> 
   merit: z.lazy(() => JsonNullableFilterSchema).optional(),
   review_note: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  role: z.union([ z.lazy(() => EnumUserReview_roleNullableFilterSchema),z.lazy(() => UserReview_roleSchema) ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
 }).strict();
 
@@ -671,6 +678,7 @@ export const UserReviewOrderByWithRelationInputSchema: z.ZodType<Prisma.UserRevi
   merit: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   review_note: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   created_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   user: z.lazy(() => UserOrderByWithRelationInputSchema).optional()
 }).strict();
 
@@ -687,6 +695,7 @@ export const UserReviewWhereUniqueInputSchema: z.ZodType<Prisma.UserReviewWhereU
   merit: z.lazy(() => JsonNullableFilterSchema).optional(),
   review_note: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  role: z.union([ z.lazy(() => EnumUserReview_roleNullableFilterSchema),z.lazy(() => UserReview_roleSchema) ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
 }).strict());
 
@@ -697,6 +706,7 @@ export const UserReviewOrderByWithAggregationInputSchema: z.ZodType<Prisma.UserR
   merit: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   review_note: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   created_at: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   _count: z.lazy(() => UserReviewCountOrderByAggregateInputSchema).optional(),
   _avg: z.lazy(() => UserReviewAvgOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => UserReviewMaxOrderByAggregateInputSchema).optional(),
@@ -714,6 +724,7 @@ export const UserReviewScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Us
   merit: z.lazy(() => JsonNullableWithAggregatesFilterSchema).optional(),
   review_note: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
+  role: z.union([ z.lazy(() => EnumUserReview_roleNullableWithAggregatesFilterSchema),z.lazy(() => UserReview_roleSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z.object({
@@ -1109,6 +1120,7 @@ export const UserReviewCreateInputSchema: z.ZodType<Prisma.UserReviewCreateInput
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
   created_at: z.coerce.date().optional().nullable(),
+  role: z.lazy(() => UserReview_roleSchema).optional().nullable(),
   user: z.lazy(() => UserCreateNestedOneWithoutUser_reviewsInputSchema)
 }).strict();
 
@@ -1118,7 +1130,8 @@ export const UserReviewUncheckedCreateInputSchema: z.ZodType<Prisma.UserReviewUn
   score: z.number().int().optional().nullable(),
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
-  created_at: z.coerce.date().optional().nullable()
+  created_at: z.coerce.date().optional().nullable(),
+  role: z.lazy(() => UserReview_roleSchema).optional().nullable()
 }).strict();
 
 export const UserReviewUpdateInputSchema: z.ZodType<Prisma.UserReviewUpdateInput> = z.object({
@@ -1126,6 +1139,7 @@ export const UserReviewUpdateInputSchema: z.ZodType<Prisma.UserReviewUpdateInput
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  role: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NullableEnumUserReview_roleFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutUser_reviewsNestedInputSchema).optional()
 }).strict();
 
@@ -1136,6 +1150,7 @@ export const UserReviewUncheckedUpdateInputSchema: z.ZodType<Prisma.UserReviewUn
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  role: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NullableEnumUserReview_roleFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserReviewCreateManyInputSchema: z.ZodType<Prisma.UserReviewCreateManyInput> = z.object({
@@ -1144,7 +1159,8 @@ export const UserReviewCreateManyInputSchema: z.ZodType<Prisma.UserReviewCreateM
   score: z.number().int().optional().nullable(),
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
-  created_at: z.coerce.date().optional().nullable()
+  created_at: z.coerce.date().optional().nullable(),
+  role: z.lazy(() => UserReview_roleSchema).optional().nullable()
 }).strict();
 
 export const UserReviewUpdateManyMutationInputSchema: z.ZodType<Prisma.UserReviewUpdateManyMutationInput> = z.object({
@@ -1152,6 +1168,7 @@ export const UserReviewUpdateManyMutationInputSchema: z.ZodType<Prisma.UserRevie
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  role: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NullableEnumUserReview_roleFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserReviewUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserReviewUncheckedUpdateManyInput> = z.object({
@@ -1161,6 +1178,7 @@ export const UserReviewUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserRevi
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  role: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NullableEnumUserReview_roleFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserCreateInputSchema: z.ZodType<Prisma.UserCreateInput> = z.object({
@@ -1750,13 +1768,21 @@ export const JsonNullableFilterSchema: z.ZodType<Prisma.JsonNullableFilter> = z.
   not: InputJsonValueSchema.optional()
 }).strict();
 
+export const EnumUserReview_roleNullableFilterSchema: z.ZodType<Prisma.EnumUserReview_roleNullableFilter> = z.object({
+  equals: z.lazy(() => UserReview_roleSchema).optional().nullable(),
+  in: z.lazy(() => UserReview_roleSchema).array().optional().nullable(),
+  notIn: z.lazy(() => UserReview_roleSchema).array().optional().nullable(),
+  not: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NestedEnumUserReview_roleNullableFilterSchema) ]).optional().nullable(),
+}).strict();
+
 export const UserReviewCountOrderByAggregateInputSchema: z.ZodType<Prisma.UserReviewCountOrderByAggregateInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   user_id: z.lazy(() => SortOrderSchema).optional(),
   score: z.lazy(() => SortOrderSchema).optional(),
   merit: z.lazy(() => SortOrderSchema).optional(),
   review_note: z.lazy(() => SortOrderSchema).optional(),
-  created_at: z.lazy(() => SortOrderSchema).optional()
+  created_at: z.lazy(() => SortOrderSchema).optional(),
+  role: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const UserReviewAvgOrderByAggregateInputSchema: z.ZodType<Prisma.UserReviewAvgOrderByAggregateInput> = z.object({
@@ -1770,7 +1796,8 @@ export const UserReviewMaxOrderByAggregateInputSchema: z.ZodType<Prisma.UserRevi
   user_id: z.lazy(() => SortOrderSchema).optional(),
   score: z.lazy(() => SortOrderSchema).optional(),
   review_note: z.lazy(() => SortOrderSchema).optional(),
-  created_at: z.lazy(() => SortOrderSchema).optional()
+  created_at: z.lazy(() => SortOrderSchema).optional(),
+  role: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const UserReviewMinOrderByAggregateInputSchema: z.ZodType<Prisma.UserReviewMinOrderByAggregateInput> = z.object({
@@ -1778,7 +1805,8 @@ export const UserReviewMinOrderByAggregateInputSchema: z.ZodType<Prisma.UserRevi
   user_id: z.lazy(() => SortOrderSchema).optional(),
   score: z.lazy(() => SortOrderSchema).optional(),
   review_note: z.lazy(() => SortOrderSchema).optional(),
-  created_at: z.lazy(() => SortOrderSchema).optional()
+  created_at: z.lazy(() => SortOrderSchema).optional(),
+  role: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const UserReviewSumOrderByAggregateInputSchema: z.ZodType<Prisma.UserReviewSumOrderByAggregateInput> = z.object({
@@ -1804,6 +1832,16 @@ export const JsonNullableWithAggregatesFilterSchema: z.ZodType<Prisma.JsonNullab
   _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
   _min: z.lazy(() => NestedJsonNullableFilterSchema).optional(),
   _max: z.lazy(() => NestedJsonNullableFilterSchema).optional()
+}).strict();
+
+export const EnumUserReview_roleNullableWithAggregatesFilterSchema: z.ZodType<Prisma.EnumUserReview_roleNullableWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => UserReview_roleSchema).optional().nullable(),
+  in: z.lazy(() => UserReview_roleSchema).array().optional().nullable(),
+  notIn: z.lazy(() => UserReview_roleSchema).array().optional().nullable(),
+  not: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NestedEnumUserReview_roleNullableWithAggregatesFilterSchema) ]).optional().nullable(),
+  _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumUserReview_roleNullableFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumUserReview_roleNullableFilterSchema).optional()
 }).strict();
 
 export const FloatNullableFilterSchema: z.ZodType<Prisma.FloatNullableFilter> = z.object({
@@ -2160,6 +2198,10 @@ export const UserCreateNestedOneWithoutUser_reviewsInputSchema: z.ZodType<Prisma
   create: z.union([ z.lazy(() => UserCreateWithoutUser_reviewsInputSchema),z.lazy(() => UserUncheckedCreateWithoutUser_reviewsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutUser_reviewsInputSchema).optional(),
   connect: z.lazy(() => UserWhereUniqueInputSchema).optional()
+}).strict();
+
+export const NullableEnumUserReview_roleFieldUpdateOperationsInputSchema: z.ZodType<Prisma.NullableEnumUserReview_roleFieldUpdateOperationsInput> = z.object({
+  set: z.lazy(() => UserReview_roleSchema).optional().nullable()
 }).strict();
 
 export const UserUpdateOneRequiredWithoutUser_reviewsNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutUser_reviewsNestedInput> = z.object({
@@ -2660,6 +2702,13 @@ export const NestedEnumMatchStatusWithAggregatesFilterSchema: z.ZodType<Prisma.N
   _max: z.lazy(() => NestedEnumMatchStatusFilterSchema).optional()
 }).strict();
 
+export const NestedEnumUserReview_roleNullableFilterSchema: z.ZodType<Prisma.NestedEnumUserReview_roleNullableFilter> = z.object({
+  equals: z.lazy(() => UserReview_roleSchema).optional().nullable(),
+  in: z.lazy(() => UserReview_roleSchema).array().optional().nullable(),
+  notIn: z.lazy(() => UserReview_roleSchema).array().optional().nullable(),
+  not: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NestedEnumUserReview_roleNullableFilterSchema) ]).optional().nullable(),
+}).strict();
+
 export const NestedJsonNullableFilterSchema: z.ZodType<Prisma.NestedJsonNullableFilter> = z.object({
   equals: InputJsonValueSchema.optional(),
   path: z.string().optional(),
@@ -2674,6 +2723,16 @@ export const NestedJsonNullableFilterSchema: z.ZodType<Prisma.NestedJsonNullable
   gt: InputJsonValueSchema.optional(),
   gte: InputJsonValueSchema.optional(),
   not: InputJsonValueSchema.optional()
+}).strict();
+
+export const NestedEnumUserReview_roleNullableWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumUserReview_roleNullableWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => UserReview_roleSchema).optional().nullable(),
+  in: z.lazy(() => UserReview_roleSchema).array().optional().nullable(),
+  notIn: z.lazy(() => UserReview_roleSchema).array().optional().nullable(),
+  not: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NestedEnumUserReview_roleNullableWithAggregatesFilterSchema) ]).optional().nullable(),
+  _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumUserReview_roleNullableFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumUserReview_roleNullableFilterSchema).optional()
 }).strict();
 
 export const NestedFloatNullableWithAggregatesFilterSchema: z.ZodType<Prisma.NestedFloatNullableWithAggregatesFilter> = z.object({
@@ -3767,7 +3826,8 @@ export const UserReviewCreateWithoutUserInputSchema: z.ZodType<Prisma.UserReview
   score: z.number().int().optional().nullable(),
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
-  created_at: z.coerce.date().optional().nullable()
+  created_at: z.coerce.date().optional().nullable(),
+  role: z.lazy(() => UserReview_roleSchema).optional().nullable()
 }).strict();
 
 export const UserReviewUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.UserReviewUncheckedCreateWithoutUserInput> = z.object({
@@ -3775,7 +3835,8 @@ export const UserReviewUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.U
   score: z.number().int().optional().nullable(),
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
-  created_at: z.coerce.date().optional().nullable()
+  created_at: z.coerce.date().optional().nullable(),
+  role: z.lazy(() => UserReview_roleSchema).optional().nullable()
 }).strict();
 
 export const UserReviewCreateOrConnectWithoutUserInputSchema: z.ZodType<Prisma.UserReviewCreateOrConnectWithoutUserInput> = z.object({
@@ -3915,6 +3976,7 @@ export const UserReviewScalarWhereInputSchema: z.ZodType<Prisma.UserReviewScalar
   merit: z.lazy(() => JsonNullableFilterSchema).optional(),
   review_note: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   created_at: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  role: z.union([ z.lazy(() => EnumUserReview_roleNullableFilterSchema),z.lazy(() => UserReview_roleSchema) ]).optional().nullable(),
 }).strict();
 
 export const MatchCreateManyBug_reportInputSchema: z.ZodType<Prisma.MatchCreateManyBug_reportInput> = z.object({
@@ -4047,7 +4109,8 @@ export const UserReviewCreateManyUserInputSchema: z.ZodType<Prisma.UserReviewCre
   score: z.number().int().optional().nullable(),
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.string().optional().nullable(),
-  created_at: z.coerce.date().optional().nullable()
+  created_at: z.coerce.date().optional().nullable(),
+  role: z.lazy(() => UserReview_roleSchema).optional().nullable()
 }).strict();
 
 export const BugReportUpdateWithoutUserInputSchema: z.ZodType<Prisma.BugReportUpdateWithoutUserInput> = z.object({
@@ -4215,6 +4278,7 @@ export const UserReviewUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserReview
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  role: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NullableEnumUserReview_roleFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserReviewUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserReviewUncheckedUpdateWithoutUserInput> = z.object({
@@ -4223,6 +4287,7 @@ export const UserReviewUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.U
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  role: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NullableEnumUserReview_roleFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 export const UserReviewUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.UserReviewUncheckedUpdateManyWithoutUserInput> = z.object({
@@ -4231,6 +4296,7 @@ export const UserReviewUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Pris
   merit: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValueSchema ]).optional(),
   review_note: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   created_at: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  role: z.union([ z.lazy(() => UserReview_roleSchema),z.lazy(() => NullableEnumUserReview_roleFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
 /////////////////////////////////////////
