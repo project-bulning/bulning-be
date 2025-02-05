@@ -57,14 +57,12 @@ export const updateUser = async (
     }
     try{
       await createMatch(req.user, Number(reportID));
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        // `e`가 `Error` 타입일 경우
-        console.error(e.message); // Error 메시지 출력
-        sendError(res, e.message); // 클라이언트로 오류 전송
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message); 
+        sendError(res, error.message, StatusCodes.BAD_REQUEST);
       } else {
-        // `e`가 `Error`가 아닌 경우
-        console.error("알 수 없는 오류:", e);
+        console.error("알 수 없는 오류:", error);
         sendError(res, '서버 오류가 발생했습니다.', StatusCodes.INTERNAL_SERVER_ERROR);
       }
     }

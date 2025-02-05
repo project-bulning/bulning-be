@@ -2,6 +2,7 @@ import { User } from '@prisma/client';
 import prisma from '@/utils/database';
 import { messaging } from '@/utils/firebase';
 import {MatchStatusResponseDto} from '@/domains/match/types';
+import { checkDuplicateMatch } from '@/utils/duplicate';
 
 export const getMatchByUser = (user: User) => {
   return prisma.match.findFirst({
@@ -85,6 +86,8 @@ export const setMatchStatus = async (matchId: number, accept: boolean) => {
 
 //헌터의 지원으로 매치 생성
 export const createMatch = async (user: User, reportID: number): Promise<void> => {
+  // 중복 체크
+  await checkDuplicateMatch(user.id, reportID);
 
   const bugReport = await prisma.bugReport.findUnique({
     where: { id: reportID },
