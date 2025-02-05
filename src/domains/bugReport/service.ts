@@ -34,7 +34,7 @@ export const getAllBugReports = async (
     FROM BugReport
     WHERE status = 'WAITING_MATCH'
     HAVING distance <= 4000
-    ORDER BY distance ASC;
+    ORDER BY distance ASC, created_at ASC;
   `;
 
   const reports = await prisma.$queryRaw<
