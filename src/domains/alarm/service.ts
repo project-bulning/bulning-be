@@ -70,7 +70,11 @@ export const hunterInfoService =  async (hunterId: number,  user: User): Promise
   const hunter = await prisma.user.findUnique({
     where: { id: hunterId },
     include: {
-      user_reviews: true,
+      user_reviews: {
+        where: {
+          role: 'HUNTER',
+        },
+      },
     },
   });
 
