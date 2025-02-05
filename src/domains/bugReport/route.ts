@@ -5,6 +5,7 @@ import {
   createBugPost,
   getBugReportDetail,
   getBugReportList,
+  delBugReport,
   uploadBugImage,
 } from '@/domains/bugReport/controller';
 
@@ -12,6 +13,7 @@ const router = express.Router();
 
 router.get('/bug-reports', getBugReportList);  // 사냥 리스트 조회
 router.get('/bug-reports/:id', authenticateToken, getBugReportDetail);  // 사냥 상세 정보 조회
+router.delete('/bug-reports/:id', authenticateToken, delBugReport);  // 사냥 글 삭제
 
 router.post('/bug-reports', authenticateToken, createBugPost);  // 벌레 정보 입력
 router.post('/bug-reports/image', authenticateToken, uploadImageMiddleware.single('image'), uploadBugImage);  // 벌레 사진 입력

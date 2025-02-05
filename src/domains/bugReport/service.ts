@@ -189,3 +189,49 @@ export const createBugReport = async (data: CreateBugReportRequestBody, user: Us
     return bugReport;
   }
 };
+
+// 게시글 삭제 로직
+export const delBugReportService = async (id: number) => {
+
+  // BugReport 조회
+  const bugReport = await prisma.bugReport.findUnique({
+    where: { id },
+    include: {
+      user: true,
+      matches: true,
+    },
+  });
+  if (!bugReport) {
+    throw new Error('해당 ID의 bugReport는 없습니다.');
+  }
+
+  if (bugReport.status !== 'WAITING_MATCH') {
+    throw new Error('해당 게시글은 삭제할 수 없습니다. 헌터와 매칭이 진행중입니다');
+  }
+
+  try {
+    await prisma.chat.deleteMany({
+      where: {
+        match_id: { in: bugReport.matches.map(match => match.id) },
+      },
+    });
+
+    await prisma.match.deleteMany({
+      where: {
+        bug_report_id: id,
+      },
+    });
+
+    await prisma.bugReport.delete({
+      where: { id },
+    });
+
+    return { 
+      message: 'BugReport가 성공적으로 삭제되었습니다.', 
+      title: bugReport.title 
+    };
+  } catch (error) {
+    console.error('게시글 삭제 중 오류:', error);
+    throw new Error('게시글 삭제 중 오류가 발생했습니다.');
+  }
+};

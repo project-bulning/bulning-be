@@ -12,6 +12,7 @@ import {
   createBugReport,
   fetchPostDetail,
   getAllBugReports,
+  delBugReportService,
 } from '@/domains/bugReport/service';
 
 // 사냥 리스트 조회
@@ -101,3 +102,34 @@ export const uploadBugImage = async (req: Request, res: Response<CreateBugImageR
     return sendError(res, '파일 업로드에 실패했습니다.');
   }
 }
+
+//삭제
+export const delBugReport = async (
+  req: AuthenticatedRequest<{id: string},{}>,
+  res: Response
+) => {
+  if(! req.user) {
+    return sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
+  }
+
+  try {
+    const { id }  = req.params;
+    console.log(Number(id))
+    if (!id || isNaN(Number(id))) {
+      return sendError(res, '유효한 버그 리포트 ID를 제공해야 합니다.');
+    }
+
+    const bugReport = await delBugReportService(Number(id));
+    if (!bugReport) {
+      return sendError(res, '해당 ID의 버그 리포트를 찾을 수 없습니다.');
+    }
+
+    res.status(StatusCodes.OK).json(bugReport);
+  } catch (error) {
+    console.error('Error fetching bug report details:', error);
+    if (error instanceof Error) {
+      return sendError(res, error.message, StatusCodes.BAD_REQUEST);
+    }
+    return sendError(res, '해당 버그 리포트를 삭제하는 중 오류가 발생했습니다.', StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};
