@@ -101,6 +101,44 @@ export const setBugReportStatus = async (matchId: number, trade: boolean, user: 
       matchUpdated = true;
     }
 
+    // Match 테이블에서 hunter_id와 helper_id를 찾고, user.id에 맞는 상대방을 찾기
+    const match = await prisma.match.findUnique({
+      where: { id: matchId },
+      select: { hunter_id: true, helper_id: true },
+    });
+
+    if (!match) {
+      throw new Error('Match 정보를 찾을 수 없습니다.');
+    }
+
+    // 상대방 FCM 토큰 가져오기
+    const otherUserId = user.id === match.hunter_id ? match.helper_id : match.hunter_id;
+    const otherUser = await prisma.user.findUnique({
+      where: { id: otherUserId },
+      select: { fcm_token: true },
+    });
+
+    const fcmToken = otherUser?.fcm_token;
+
+    if (!fcmToken || typeof fcmToken !== 'string' || fcmToken.trim() === '') {
+      throw new Error("유효하지 않은 FCM token입니다.");
+    }
+
+    // FCM 알림 메시지 전송
+    const message = {
+      token: fcmToken,
+      notification: {
+        body: "거래가 취소되었어요",
+      },
+      data: {
+        type: "trade_quited", 
+        matchId: `${matchId}`
+      },
+    };
+
+    // FCM을 통해 알림 전송
+    await messaging.send(message);
+
     // 채팅 강제 종료
     chatClosed = Socket.closeSession(user.id);
 
