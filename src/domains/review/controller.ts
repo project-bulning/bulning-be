@@ -3,10 +3,10 @@ import { sendError } from '@/utils/response';
 import {CreateUserReviewRequestBody} from '@/domains/review/types';
 import { AuthenticatedRequest } from '@/types/express';
 import { StatusCodes } from 'http-status-codes';
-import { createHunterReview } from '@/domains/review/service';
+import { createReview } from '@/domains/review/service';
 
 // 헌터 리뷰 입력
-export const hunterReviewController = async (
+export const ReviewController = async (
     req: AuthenticatedRequest<{matchId:string}, CreateUserReviewRequestBody>,
     res: Response
 ) => {
@@ -18,9 +18,8 @@ export const hunterReviewController = async (
     return sendError(res, '유효한 match ID가 필요합니다.');
   }
 
-
   try {
-    await createHunterReview(Number(matchId),req.body);
+    await createReview(Number(matchId),req.body, req.user);
     res.status(StatusCodes.CREATED).send();
   } catch(e) {
     console.error(e);
