@@ -7,6 +7,7 @@ import { getMatchByUser, createMatch } from '@/domains/match/service';
 import { signoutUser, updateUserInfo } from '@/domains/auth/service';
 import { CreateHunterImageResponse } from '@/domains/user/types';
 import { uploadToS3 } from '@/utils/upload';
+import prisma from '@/utils/database';
 
 //회원 정보 조회
 export const getMyInfo = async(req: AuthenticatedRequest, res: Response) => {
@@ -14,10 +15,25 @@ export const getMyInfo = async(req: AuthenticatedRequest, res: Response) => {
     sendError(res, '로그인된 사용자가 아닙니다.', StatusCodes.UNAUTHORIZED);
     return;
   }
+
+  const incompleteReport = await prisma.bugReport.findFirst({
+    where: {
+      user_id: req.user.id,
+      status: {
+        not: 'COMPLETED',  // COMPLETED 상태가 아닌 BugReport만 조회
+      },
+    },
+    select: {
+      id: true,  // 필요한 id만 조회
+    },
+  });
+
+  console.log(incompleteReport);
   const match = await getMatchByUser(req.user);
-  const ret: Partial<User> & { match: Match | null } = {
+  const ret: Partial<User> & { match: Match | null} &{reportId: number | null } = {
     ...req.user,
     match,
+    reportId: incompleteReport ? incompleteReport.id : null
   };
   delete ret.kakao_id;
   res.json(ret);
@@ -41,8 +57,16 @@ export const updateUser = async (
     }
     try{
       await createMatch(req.user, Number(reportID));
-    }catch (error) {
-      sendError(res, '매칭 중 오류가 발생했습니다다', 500);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        // `e`가 `Error` 타입일 경우
+        console.error(e.message); // Error 메시지 출력
+        sendError(res, e.message); // 클라이언트로 오류 전송
+      } else {
+        // `e`가 `Error`가 아닌 경우
+        console.error("알 수 없는 오류:", e);
+        sendError(res, '서버 오류가 발생했습니다.', StatusCodes.INTERNAL_SERVER_ERROR);
+      }
     }
   }
 
