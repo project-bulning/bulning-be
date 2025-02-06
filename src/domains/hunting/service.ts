@@ -117,6 +117,8 @@ export const setBugReportStatus = async (matchId: number, trade: boolean, user: 
       where: { id: otherUserId },
       select: { fcm_token: true },
     });
+    //상대의 역할 알기
+    const otherRole = user.id === match.hunter_id ? "helpee": "hunter";
 
     const fcmToken = otherUser?.fcm_token;
 
@@ -127,12 +129,10 @@ export const setBugReportStatus = async (matchId: number, trade: boolean, user: 
     // FCM 알림 메시지 전송
     const message = {
       token: fcmToken,
-      notification: {
-        body: "거래가 취소되었어요",
-      },
       data: {
         type: "trade_quited", 
-        matchId: `${matchId}`
+        matchId: `${matchId}`,
+        role:`${otherRole}`,
       },
     };
 
