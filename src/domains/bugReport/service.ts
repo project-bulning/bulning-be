@@ -156,6 +156,7 @@ export const createBugReport = async (data: CreateBugReportRequestBody, user: Us
     SELECT id, fcm_token
     FROM User
     WHERE fcm_token IS NOT NULL
+    AND id != ${user.id}
     AND ST_DISTANCE_SPHERE(
       POINT(longitude, latitude),
       POINT(${longitude}, ${latitude})
