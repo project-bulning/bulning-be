@@ -44,7 +44,7 @@ export const setMatchStatus = async (matchId: number, accept: boolean) => {
   }
 
     //accept에 따라 Match status를 바꾸기
-    prisma.match.update({
+  await prisma.match.update({
       data: {
         status: accept ? 'MATCH_ACCEPTED' : 'MATCH_REJECTED',
         resolved_at: new Date(),
