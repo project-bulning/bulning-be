@@ -49,6 +49,7 @@ export const updateUser = async (
     return;
   }
   const updatedData = req.body;
+  console.log(updatedData);
   const reportID = req.query.reportId ? req.query.reportId : null;
 
   if (reportID) {
