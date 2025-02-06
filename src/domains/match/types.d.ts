@@ -12,4 +12,5 @@ export interface MatchStatusResponseDto {
   matchId: number;
   hunterId?: number;
   helpeeId?: number;
+  type: "hunter_applied" | "hunter_accepted";
 }

@@ -136,6 +136,7 @@ export const getMatchStatusService = async (user: User): Promise<MatchStatusResp
       status: helperMatch.status,
       matchId: helperMatch.id,
       hunterId: helperMatch.hunter_id,
+      type: "hunter_applied"
     };
   }
 
@@ -152,7 +153,8 @@ export const getMatchStatusService = async (user: User): Promise<MatchStatusResp
       role: "hunter",
       status: hunterMatch.status,
       matchId:hunterMatch.id,
-      helpeeId:hunterMatch.helper_id
+      helpeeId:hunterMatch.helper_id,
+      type: "hunter_accepted"
     };
   }
 
