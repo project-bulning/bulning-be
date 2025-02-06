@@ -43,6 +43,17 @@ export const setMatchStatus = async (matchId: number, accept: boolean) => {
     });
   }
 
+    //accept에 따라 Match status를 바꾸기
+    prisma.match.update({
+      data: {
+        status: accept ? 'MATCH_ACCEPTED' : 'MATCH_REJECTED',
+        resolved_at: new Date(),
+      },
+      where: {
+        id: matchId,
+      }
+    });
+
   // FCM
   const fcmToken = match?.hunter.fcm_token;
 
@@ -71,17 +82,6 @@ export const setMatchStatus = async (matchId: number, accept: boolean) => {
   } catch (error) {
     console.error('FCM 메시지 전송 중 오류 발생:', error);
   }
-
-  //accept에 따라 Match status를 바꾸기
-  return prisma.match.update({
-    data: {
-      status: accept ? 'MATCH_ACCEPTED' : 'MATCH_REJECTED',
-      resolved_at: new Date(),
-    },
-    where: {
-      id: matchId,
-    }
-  });
 }
 
 //헌터의 지원으로 매치 생성
